@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - AgriGorithm</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Header -->
+    <header class="bg-surface-raised border-b border-border sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Back Navigation -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="history.back()" class="flex items-center text-text-secondary hover:text-primary transition-colors duration-200" aria-label="Go back">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back
+                    </button>
+                </div>
+
+                <!-- Logo -->
+                <div class="flex-1 flex justify-center">
+                    <a href="home_screen.html" class="flex items-center">
+                        <svg class="w-8 h-8 text-primary mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="text-xl font-bold text-text-primary">AgriGorithm</span>
+                    </a>
+                </div>
+
+                <!-- Cart Icon -->
+                <div class="flex items-center">
+                    <button class="relative p-2 text-text-secondary hover:text-primary transition-colors duration-200" aria-label="Shopping cart">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01"></path>
+                        </svg>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Loading Skeleton -->
+    <div id="loading-skeleton" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Image Skeleton -->
+            <div class="space-y-4">
+                <div class="aspect-square bg-surface animate-pulse rounded-lg"></div>
+                <div class="flex space-x-2">
+                    <div class="w-16 h-16 bg-surface animate-pulse rounded-md"></div>
+                    <div class="w-16 h-16 bg-surface animate-pulse rounded-md"></div>
+                    <div class="w-16 h-16 bg-surface animate-pulse rounded-md"></div>
+                </div>
+            </div>
+            <!-- Content Skeleton -->
+            <div class="space-y-6">
+                <div class="h-8 bg-surface animate-pulse rounded w-3/4"></div>
+                <div class="h-6 bg-surface animate-pulse rounded w-1/4"></div>
+                <div class="space-y-2">
+                    <div class="h-4 bg-surface animate-pulse rounded"></div>
+                    <div class="h-4 bg-surface animate-pulse rounded w-5/6"></div>
+                    <div class="h-4 bg-surface animate-pulse rounded w-4/6"></div>
+                </div>
+                <div class="h-12 bg-surface animate-pulse rounded"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Content -->
+    <main id="product-content" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <!-- Product Images -->
+            <div class="space-y-4">
+                <!-- Main Image -->
+                <div class="relative aspect-square bg-surface-raised rounded-lg overflow-hidden border border-border">
+                    <img id="main-image" 
+                         src="https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                         alt="Fresh Organic Tomatoes" 
+                         class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                         onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                    
+                    <!-- Navigation Arrows -->
+                    <button id="prev-image" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-surface-raised bg-opacity-70 backdrop-blur-md border border-opacity-20 rounded-full p-2 hover:bg-opacity-90 transition-all duration-200" aria-label="Previous image">
+                        <svg class="w-5 h-5 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <button id="next-image" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-surface-raised bg-opacity-70 backdrop-blur-md border border-opacity-20 rounded-full p-2 hover:bg-opacity-90 transition-all duration-200" aria-label="Next image">
+                        <svg class="w-5 h-5 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Thumbnail Gallery -->
+                <div class="flex space-x-2 overflow-x-auto pb-2">
+                    <button class="thumbnail-btn flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 border-primary" data-image="https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3">
+                        <img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Tomatoes view 1" class="w-full h-full object-cover">
+                    </button>
+                    <button class="thumbnail-btn flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 border-border hover:border-primary transition-colors duration-200" data-image="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3">
+                        <img src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Tomatoes view 2" class="w-full h-full object-cover">
+                    </button>
+                    <button class="thumbnail-btn flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 border-border hover:border-primary transition-colors duration-200" data-image="https://images.unsplash.com/photo-1546470427-e5d491d9f2b8?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3">
+                        <img src="https://images.unsplash.com/photo-1546470427-e5d491d9f2b8?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Tomatoes view 3" class="w-full h-full object-cover">
+                    </button>
+                </div>
+            </div>
+
+            <!-- Product Information -->
+            <div class="space-y-6">
+                <!-- Product Title and Price -->
+                <div class="space-y-2">
+                    <h1 id="product-title" class="text-3xl font-bold text-text-primary">Fresh Organic Tomatoes</h1>
+                    <div class="flex items-center space-x-4">
+                        <span id="product-price" class="text-2xl font-bold text-primary">$4.99/kg</span>
+                        <span class="text-sm text-text-secondary bg-success bg-opacity-10 text-success px-2 py-1 rounded-full">In Stock</span>
+                    </div>
+                </div>
+
+                <!-- Seller Information -->
+                <div class="bg-surface rounded-lg p-4 border border-border">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold">GF</span>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-text-primary">Green Fields Farm</h3>
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-text-tertiary" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                    </svg>
+                                    <span id="product-region" class="text-sm text-text-secondary">California, USA</span>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="products_listing_screen.html" class="text-primary hover:text-primary-dark font-medium text-sm transition-colors duration-200">View Seller</a>
+                    </div>
+                </div>
+
+                <!-- Product Description -->
+                <div class="space-y-3">
+                    <h2 class="text-xl font-semibold text-text-primary">Description</h2>
+                    <p id="product-description" class="text-text-secondary leading-relaxed">
+                        Premium organic tomatoes grown using sustainable farming practices. These vine-ripened tomatoes are perfect for salads, cooking, and preserving. Rich in vitamins and antioxidants, our tomatoes are harvested at peak ripeness to ensure maximum flavor and nutritional value.
+                    </p>
+                </div>
+
+                <!-- Product Tags -->
+                <div class="space-y-3">
+                    <h3 class="text-lg font-semibold text-text-primary">Tags</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-full text-sm">Organic</span>
+                        <span class="bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-full text-sm">Fresh</span>
+                        <span class="bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-full text-sm">Local</span>
+                        <span class="bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-full text-sm">Vegetables</span>
+                    </div>
+                </div>
+
+                <!-- Add to Cart Section -->
+                <div class="space-y-4 pt-4 border-t border-border">
+                    <div class="flex items-center space-x-4">
+                        <label for="quantity" class="text-sm font-medium text-text-primary">Quantity:</label>
+                        <div class="flex items-center border border-border rounded-md">
+                            <button id="decrease-qty" class="px-3 py-2 text-text-secondary hover:text-primary transition-colors duration-200">-</button>
+                            <input id="quantity" type="number" value="1" min="1" max="10" class="w-16 text-center border-0 focus:ring-0 focus:outline-none">
+                            <button id="increase-qty" class="px-3 py-2 text-text-secondary hover:text-primary transition-colors duration-200">+</button>
+                        </div>
+                    </div>
+                    
+                    <button id="add-to-cart-btn" class="w-full bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-300 transform hover:scale-105">
+                        <span id="btn-text">Add to Cart</span>
+                        <svg id="btn-loading" class="hidden animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products Section -->
+        <section class="mt-16">
+            <h2 class="text-2xl font-bold text-text-primary mb-6">Related Products</h2>
+            <div class="overflow-x-auto">
+                <div class="flex space-x-4 pb-4">
+                    <!-- Related Product 1 -->
+                    <div class="flex-shrink-0 w-64 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="aspect-square overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Fresh Lettuce" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Fresh Lettuce</h3>
+                            <p class="text-text-secondary text-sm mb-2">Crispy organic lettuce</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-primary">$2.99/head</span>
+                                <button class="text-primary hover:text-primary-dark transition-colors duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Related Product 2 -->
+                    <div class="flex-shrink-0 w-64 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="aspect-square overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Bell Peppers" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Bell Peppers</h3>
+                            <p class="text-text-secondary text-sm mb-2">Colorful organic peppers</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-primary">$3.49/lb</span>
+                                <button class="text-primary hover:text-primary-dark transition-colors duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Related Product 3 -->
+                    <div class="flex-shrink-0 w-64 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="aspect-square overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" alt="Fresh Carrots" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Fresh Carrots</h3>
+                            <p class="text-text-secondary text-sm mb-2">Sweet organic carrots</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-primary">$1.99/lb</span>
+                                <button class="text-primary hover:text-primary-dark transition-colors duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden max-w-md mx-auto mt-16 text-center">
+        <div class="bg-surface-raised rounded-lg p-8 border border-border">
+            <svg class="w-16 h-16 text-text-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h2 class="text-xl font-semibold text-text-primary mb-2">Product Not Found</h2>
+            <p class="text-text-secondary mb-6">Sorry, we couldn't load the product details. Please try again.</p>
+            <button id="retry-btn" class="btn-primary">Try Again</button>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="success-toast" class="fixed top-4 right-4 bg-success text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            <span>Added to cart successfully!</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-surface-raised border-t border-border mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <svg class="w-8 h-8 text-primary mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="text-xl font-bold text-text-primary">AgriGorithm</span>
+                    </div>
+                    <p class="text-text-secondary">Connecting farmers with consumers for fresh, sustainable produce.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="home_screen.html" class="text-text-secondary hover:text-primary transition-colors duration-200">Home</a></li>
+                        <li><a href="products_listing_screen.html" class="text-text-secondary hover:text-primary transition-colors duration-200">Products</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">About</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Categories</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Vegetables</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Fruits</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Grains</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Dairy</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Help Center</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Shipping Info</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Returns</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-border mt-8 pt-8 text-center">
+                <p class="text-text-secondary">© 2025 AgriGorithm. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simulate loading state
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingSkeleton = document.getElementById('loading-skeleton');
+            const productContent = document.getElementById('product-content');
+            const errorState = document.getElementById('error-state');
+
+            // Simulate API call delay
+            setTimeout(() => {
+                loadingSkeleton.classList.add('hidden');
+                productContent.classList.remove('hidden');
+            }, 1500);
+
+            // Image gallery functionality
+            const mainImage = document.getElementById('main-image');
+            const thumbnailBtns = document.querySelectorAll('.thumbnail-btn');
+            const prevBtn = document.getElementById('prev-image');
+            const nextBtn = document.getElementById('next-image');
+            
+            let currentImageIndex = 0;
+            const images = [
+                'https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3',
+                'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3',
+                'https://images.unsplash.com/photo-1546470427-e5d491d9f2b8?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3'
+            ];
+
+            function updateMainImage(index) {
+                mainImage.src = images[index];
+                thumbnailBtns.forEach((btn, i) => {
+                    btn.classList.toggle('border-primary', i === index);
+                    btn.classList.toggle('border-border', i !== index);
+                });
+                currentImageIndex = index;
+            }
+
+            thumbnailBtns.forEach((btn, index) => {
+                btn.addEventListener('click', () => updateMainImage(index));
+            });
+
+            prevBtn.addEventListener('click', () => {
+                const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : images.length - 1;
+                updateMainImage(newIndex);
+            });
+
+            nextBtn.addEventListener('click', () => {
+                const newIndex = currentImageIndex < images.length - 1 ? currentImageIndex + 1 : 0;
+                updateMainImage(newIndex);
+            });
+
+            // Quantity controls
+            const quantityInput = document.getElementById('quantity');
+            const decreaseBtn = document.getElementById('decrease-qty');
+            const increaseBtn = document.getElementById('increase-qty');
+
+            decreaseBtn.addEventListener('click', () => {
+                const currentValue = parseInt(quantityInput.value);
+                if (currentValue > 1) {
+                    quantityInput.value = currentValue - 1;
+                }
+            });
+
+            increaseBtn.addEventListener('click', () => {
+                const currentValue = parseInt(quantityInput.value);
+                if (currentValue < 10) {
+                    quantityInput.value = currentValue + 1;
+                }
+            });
+
+            // Add to cart functionality
+            const addToCartBtn = document.getElementById('add-to-cart-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnLoading = document.getElementById('btn-loading');
+            const successToast = document.getElementById('success-toast');
+            const cartCount = document.getElementById('cart-count');
+
+            addToCartBtn.addEventListener('click', function() {
+                // Show loading state
+                btnText.textContent = 'Adding...';
+                btnLoading.classList.remove('hidden');
+                addToCartBtn.disabled = true;
+
+                // Simulate API call
+                setTimeout(() => {
+                    // Reset button state
+                    btnText.textContent = 'Add to Cart';
+                    btnLoading.classList.add('hidden');
+                    addToCartBtn.disabled = false;
+
+                    // Update cart count
+                    const currentCount = parseInt(cartCount.textContent);
+                    const quantity = parseInt(quantityInput.value);
+                    cartCount.textContent = currentCount + quantity;
+
+                    // Show success toast
+                    successToast.classList.remove('translate-x-full');
+                    setTimeout(() => {
+                        successToast.classList.add('translate-x-full');
+                    }, 3000);
+
+                    // Add success animation to button
+                    addToCartBtn.classList.add('bg-success');
+                    btnText.textContent = 'Added!';
+                    setTimeout(() => {
+                        addToCartBtn.classList.remove('bg-success');
+                        btnText.textContent = 'Add to Cart';
+                    }, 1000);
+                }, 1000);
+            });
+
+            // Retry functionality for error state
+            const retryBtn = document.getElementById('retry-btn');
+            if (retryBtn) {
+                retryBtn.addEventListener('click', () => {
+                    location.reload();
+                });
+            }
+
+            // Keyboard navigation for gallery
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    prevBtn.click();
+                } else if (e.key === 'ArrowRight') {
+                    nextBtn.click();
+                }
+            });
+        });
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+<script id="dhws-elementInspector" src="../public/dhws-web-inspector.js"></script>
+<script id="dhws-errorTracker" src="../public/dhws-error-tracker.js"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <link href="css/tailwind.css" rel="stylesheet">
+    <style>
+        .loader {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #16a34a;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen flex items-center justify-center">
+    <div class="text-center">
+        <div class="loader mx-auto mb-4"></div>
+        <h1 class="text-2xl font-semibold text-text-primary mb-2">Loading...</h1>
+        <p class="text-text-secondary">Redirecting to the application</p>
+    </div>
+
+    <script>
+        // Available pages
+        const pages = [
+            'product_detail_screen',
+            'login_profile_screen', 
+            'home_screen',
+            'products_listing_screen'
+        ];
+        
+        // Default redirect to home screen
+        const defaultPage = 'home_screen';
+        
+        // Function to redirect to a specific page
+        function redirectToPage(pageName) {
+            if (pages.includes(pageName)) {
+                window.location.href = `pages/${pageName}.html`;
+            } else {
+                // Fallback to default page if page doesn't exist
+                window.location.href = `pages/${defaultPage}.html`;
+            }
+        }
+        
+        // Get page from URL parameters or use default
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetPage = urlParams.get('page') || defaultPage;
+        
+        // Redirect after a short delay to show loading animation
+        setTimeout(() => {
+            redirectToPage(targetPage);
+        }, 1500);
+        
+        // Alternative: Immediate redirect (uncomment if you don't want loading animation)
+        // redirectToPage(targetPage);
+    </script>
+<script id="dhws-dataInjector" src="public/dhws-data-injector.js"></script>
+<script id="dhws-elementInspector" src="public/dhws-web-inspector.js"></script>
+<script id="dhws-errorTracker" src="public/dhws-error-tracker.js"></script>
+</body>
+</html>

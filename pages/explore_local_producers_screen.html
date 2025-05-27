@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Local Producers - AgriGorithm</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Header -->
+    <header class="bg-surface-raised border-b border-border sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Back Navigation -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="history.back()" class="flex items-center text-text-secondary hover:text-primary transition-colors duration-200" aria-label="Go back">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back to Home
+                    </button>
+                </div>
+
+                <!-- Logo and Search -->
+                <div class="flex-1 flex items-center justify-center space-x-4">
+                    <a href="home_screen.html" class="flex items-center">
+                        <svg class="w-8 h-8 text-primary mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="text-xl font-bold text-text-primary">AgriGorithm</span>
+                    </a>
+                    
+                    <!-- Search Bar -->
+                    <div class="relative max-w-md w-full">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input 
+                            id="search-producers" 
+                            type="text" 
+                            placeholder="Search producers..." 
+                            class="block w-full pl-10 pr-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 text-sm"
+                        >
+                    </div>
+                </div>
+
+                <!-- Profile Button -->
+                <div class="flex items-center">
+                    <a href="login_profile_screen.html" class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-colors duration-200 p-2 rounded-lg hover:bg-surface">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <span class="hidden sm:block font-medium">Profile</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-text-primary mb-2">Explore Local Producers</h1>
+            <p class="text-text-secondary">Discover talented farmers and producers in your region</p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="bg-surface-raised rounded-lg border border-border p-6 mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-6">
+                <!-- Region Filter -->
+                <div class="flex-1">
+                    <label for="region-filter" class="block text-sm font-medium text-text-primary mb-2">Filter by Region</label>
+                    <div class="relative">
+                        <select id="region-filter" class="input-field pr-8 appearance-none bg-white w-full">
+                            <option value="">All Regions</option>
+                            <option value="region-1">Region 1 - Ilocos Region</option>
+                            <option value="region-2">Region 2 - Cagayan Valley</option>
+                            <option value="region-3">Region 3 - Central Luzon</option>
+                            <option value="region-4a">Region 4A - CALABARZON</option>
+                            <option value="region-4b">Region 4B - MIMAROPA</option>
+                            <option value="region-5">Region 5 - Bicol Region</option>
+                            <option value="region-6">Region 6 - Western Visayas</option>
+                            <option value="region-7">Region 7 - Central Visayas</option>
+                            <option value="region-8">Region 8 - Eastern Visayas</option>
+                            <option value="region-9">Region 9 - Zamboanga Peninsula</option>
+                            <option value="region-10">Region 10 - Northern Mindanao</option>
+                            <option value="region-11">Region 11 - Davao Region</option>
+                            <option value="region-12">Region 12 - SOCCSKSARGEN</option>
+                            <option value="ncr">NCR - National Capital Region</option>
+                            <option value="car">CAR - Cordillera Administrative Region</option>
+                            <option value="armm">ARMM - Autonomous Region in Muslim Mindanao</option>
+                        </select>
+                        <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Clear Filters -->
+                <div class="flex items-end">
+                    <button id="clear-filters" class="btn-secondary whitespace-nowrap">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Applied Filters Chips -->
+            <div id="applied-filters" class="mt-4 flex flex-wrap gap-2 hidden">
+                <span class="text-sm font-medium text-text-secondary">Selected regions:</span>
+            </div>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center space-x-4">
+                <span id="results-count" class="text-text-secondary">Showing 12 producers</span>
+                <div id="loading-indicator" class="hidden flex items-center space-x-2">
+                    <svg class="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-sm text-text-secondary">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Producers Grid -->
+        <div id="producers-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <!-- Producer cards will be dynamically inserted here -->
+        </div>
+
+        <!-- Loading Skeleton -->
+        <div id="loading-skeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <!-- Skeleton cards -->
+            <div class="bg-surface-raised rounded-lg border border-border overflow-hidden animate-pulse">
+                <div class="h-32 bg-surface"></div>
+                <div class="p-4 space-y-3">
+                    <div class="h-4 bg-surface rounded w-3/4"></div>
+                    <div class="h-3 bg-surface rounded w-1/2"></div>
+                    <div class="h-3 bg-surface rounded w-2/3"></div>
+                </div>
+            </div>
+            <div class="bg-surface-raised rounded-lg border border-border overflow-hidden animate-pulse">
+                <div class="h-32 bg-surface"></div>
+                <div class="p-4 space-y-3">
+                    <div class="h-4 bg-surface rounded w-3/4"></div>
+                    <div class="h-3 bg-surface rounded w-1/2"></div>
+                    <div class="h-3 bg-surface rounded w-2/3"></div>
+                </div>
+            </div>
+            <div class="bg-surface-raised rounded-lg border border-border overflow-hidden animate-pulse">
+                <div class="h-32 bg-surface"></div>
+                <div class="p-4 space-y-3">
+                    <div class="h-4 bg-surface rounded w-3/4"></div>
+                    <div class="h-3 bg-surface rounded w-1/2"></div>
+                    <div class="h-3 bg-surface rounded w-2/3"></div>
+                </div>
+            </div>
+            <div class="bg-surface-raised rounded-lg border border-border overflow-hidden animate-pulse">
+                <div class="h-32 bg-surface"></div>
+                <div class="p-4 space-y-3">
+                    <div class="h-4 bg-surface rounded w-3/4"></div>
+                    <div class="h-3 bg-surface rounded w-1/2"></div>
+                    <div class="h-3 bg-surface rounded w-2/3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-16">
+            <div class="max-w-md mx-auto">
+                <svg class="w-16 h-16 text-text-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                <h2 class="text-xl font-semibold text-text-primary mb-2">No producers found</h2>
+                <p class="text-text-secondary mb-6">Try adjusting your search criteria or explore different regions to find local producers.</p>
+                <button id="reset-filters" class="btn-primary">Reset Filters</button>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden max-w-md mx-auto mt-16 text-center">
+            <div class="bg-surface-raised rounded-lg p-8 border border-border">
+                <svg class="w-16 h-16 text-text-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h2 class="text-xl font-semibold text-text-primary mb-2">Something went wrong</h2>
+                <p class="text-text-secondary mb-6">We couldn't load the producers. Please try again.</p>
+                <button id="retry-btn" class="btn-primary">Try Again</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-raised border-t border-border mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <svg class="w-8 h-8 text-primary mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="text-xl font-bold text-text-primary">AgriGorithm</span>
+                    </div>
+                    <p class="text-text-secondary">Connecting farmers with consumers for fresh, sustainable produce.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="home_screen.html" class="text-text-secondary hover:text-primary transition-colors duration-200">Home</a></li>
+                        <li><a href="products_listing_screen.html" class="text-text-secondary hover:text-primary transition-colors duration-200">Products</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">About</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Categories</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Vegetables</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Fruits</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Grains</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Dairy</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Help Center</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Shipping Info</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Returns</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-border mt-8 pt-8 text-center">
+                <p class="text-text-secondary">© 2025 AgriGorithm. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mock producers data
+        const mockProducers = [
+            {
+                id: 1,
+                name: "Green Fields Farm",
+                region: "region-3",
+                regionName: "Region 3 - Central Luzon",
+                productCount: 24,
+                categories: ["Vegetables", "Fruits"],
+                bio: "Sustainable farming practices for over 20 years",
+                contact: "09123456789",
+                email: "greenfields@farm.ph",
+                avatar: "GF",
+                bgColor: "from-primary-light to-primary"
+            },
+            {
+                id: 2,
+                name: "Sunny Acres Farm",
+                region: "region-4a",
+                regionName: "Region 4A - CALABARZON",
+                productCount: 18,
+                categories: ["Vegetables", "Herbs"],
+                bio: "Family-owned farm specializing in organic produce",
+                contact: "09234567890",
+                email: "sunnyacres@farm.ph",
+                avatar: "SA",
+                bgColor: "from-success to-primary"
+            },
+            {
+                id: 3,
+                name: "Valley Harvest Co.",
+                region: "region-1",
+                regionName: "Region 1 - Ilocos Region",
+                productCount: 31,
+                categories: ["Fruits", "Grains"],
+                bio: "Premium quality fruits and grains from mountain valleys",
+                contact: "09345678901",
+                email: "valley@harvest.ph",
+                avatar: "VH",
+                bgColor: "from-warning to-primary-light"
+            },
+            {
+                id: 4,
+                name: "Mountain Organic",
+                region: "car",
+                regionName: "CAR - Cordillera Administrative Region",
+                productCount: 15,
+                categories: ["Vegetables", "Herbs"],
+                bio: "High-altitude organic farming in the Cordilleras",
+                contact: "09456789012",
+                email: "mountain@organic.ph",
+                avatar: "MO",
+                bgColor: "from-info to-primary"
+            },
+            {
+                id: 5,
+                name: "Golden Rice Fields",
+                region: "region-3",
+                regionName: "Region 3 - Central Luzon",
+                productCount: 42,
+                categories: ["Grains", "Rice"],
+                bio: "Traditional rice farming with modern techniques",
+                contact: "09567890123",
+                email: "golden@rice.ph",
+                avatar: "GR",
+                bgColor: "from-warning to-success"
+            },
+            {
+                id: 6,
+                name: "Coastal Fresh",
+                region: "region-5",
+                regionName: "Region 5 - Bicol Region",
+                productCount: 27,
+                categories: ["Seafood", "Coconut"],
+                bio: "Fresh coastal produce and coconut products",
+                contact: "09678901234",
+                email: "coastal@fresh.ph",
+                avatar: "CF",
+                bgColor: "from-info to-success"
+            },
+            {
+                id: 7,
+                name: "Highland Vegetables",
+                region: "region-2",
+                regionName: "Region 2 - Cagayan Valley",
+                productCount: 19,
+                categories: ["Vegetables", "Root Crops"],
+                bio: "Cool climate vegetables from highland farms",
+                contact: "09789012345",
+                email: "highland@vegetables.ph",
+                avatar: "HV",
+                bgColor: "from-primary to-info"
+            },
+            {
+                id: 8,
+                name: "Tropical Fruits Co.",
+                region: "region-11",
+                regionName: "Region 11 - Davao Region",
+                productCount: 35,
+                categories: ["Fruits", "Tropical"],
+                bio: "Exotic tropical fruits from Mindanao",
+                contact: "09890123456",
+                email: "tropical@fruits.ph",
+                avatar: "TF",
+                bgColor: "from-warning to-error"
+            },
+            {
+                id: 9,
+                name: "Metro Greens",
+                region: "ncr",
+                regionName: "NCR - National Capital Region",
+                productCount: 12,
+                categories: ["Herbs", "Microgreens"],
+                bio: "Urban farming solutions for city dwellers",
+                contact: "09901234567",
+                email: "metro@greens.ph",
+                avatar: "MG",
+                bgColor: "from-success to-info"
+            },
+            {
+                id: 10,
+                name: "Island Harvest",
+                region: "region-7",
+                regionName: "Region 7 - Central Visayas",
+                productCount: 28,
+                categories: ["Fruits", "Vegetables"],
+                bio: "Island-grown produce with unique flavors",
+                contact: "09012345678",
+                email: "island@harvest.ph",
+                avatar: "IH",
+                bgColor: "from-primary-light to-warning"
+            },
+            {
+                id: 11,
+                name: "Rice Valley Farms",
+                region: "region-8",
+                regionName: "Region 8 - Eastern Visayas",
+                productCount: 33,
+                categories: ["Rice", "Grains"],
+                bio: "Traditional rice varieties and heritage grains",
+                contact: "09123450987",
+                email: "ricevalley@farms.ph",
+                avatar: "RV",
+                bgColor: "from-warning to-primary"
+            },
+            {
+                id: 12,
+                name: "Southern Organics",
+                region: "region-12",
+                regionName: "Region 12 - SOCCSKSARGEN",
+                productCount: 21,
+                categories: ["Organic", "Vegetables"],
+                bio: "Certified organic farming in Southern Mindanao",
+                contact: "09234560987",
+                email: "southern@organics.ph",
+                avatar: "SO",
+                bgColor: "from-success to-primary-light"
+            }
+        ];
+
+        let currentProducers = [];
+        let filteredProducers = [];
+
+        // DOM elements
+        const producersGrid = document.getElementById('producers-grid');
+        const loadingSkeleton = document.getElementById('loading-skeleton');
+        const emptyState = document.getElementById('empty-state');
+        const errorState = document.getElementById('error-state');
+        const resultsCount = document.getElementById('results-count');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const appliedFilters = document.getElementById('applied-filters');
+        const searchInput = document.getElementById('search-producers');
+
+        // Filter elements
+        const regionFilter = document.getElementById('region-filter');
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        const retryBtn = document.getElementById('retry-btn');
+
+        // Initialize page
+        function initializePage() {
+            currentProducers = [...mockProducers];
+            applyFilters();
+            
+            // Hide loading skeleton and show content
+            setTimeout(() => {
+                loadingSkeleton.classList.add('hidden');
+                renderProducers();
+            }, 1000);
+        }
+
+        // Apply filters
+        function applyFilters() {
+            showLoadingIndicator();
+            
+            setTimeout(() => {
+                let filtered = [...mockProducers];
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const region = regionFilter.value;
+
+                // Apply region filter
+                if (region) {
+                    filtered = filtered.filter(producer => producer.region === region);
+                }
+
+                // Apply search filter
+                if (searchTerm) {
+                    filtered = filtered.filter(producer => 
+                        producer.name.toLowerCase().includes(searchTerm) ||
+                        producer.regionName.toLowerCase().includes(searchTerm) ||
+                        producer.categories.some(cat => cat.toLowerCase().includes(searchTerm)) ||
+                        producer.bio.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                filteredProducers = filtered;
+                updateAppliedFilters();
+                renderProducers();
+                hideLoadingIndicator();
+            }, 300);
+        }
+
+        // Update applied filters display
+        function updateAppliedFilters() {
+            const filters = [];
+            
+            if (regionFilter.value) {
+                filters.push({
+                    type: 'region',
+                    value: regionFilter.value,
+                    label: regionFilter.options[regionFilter.selectedIndex].text
+                });
+            }
+
+            if (filters.length > 0) {
+                appliedFilters.classList.remove('hidden');
+                const filtersHTML = filters.map(filter => `
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary bg-opacity-10 text-primary">
+                        ${filter.label}
+                        <button onclick="removeFilter('${filter.type}')" class="ml-2 hover:text-primary-dark" aria-label="Remove ${filter.label} filter">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </span>
+                `).join('');
+                
+                appliedFilters.innerHTML = `
+                    <span class="text-sm font-medium text-text-secondary">Selected regions:</span>
+                    ${filtersHTML}
+                `;
+            } else {
+                appliedFilters.classList.add('hidden');
+            }
+        }
+
+        // Remove specific filter
+        function removeFilter(filterType) {
+            if (filterType === 'region') {
+                regionFilter.value = '';
+            }
+            applyFilters();
+        }
+
+        // Clear all filters
+        function clearAllFilters() {
+            regionFilter.value = '';
+            searchInput.value = '';
+            applyFilters();
+        }
+
+        // Render producers
+        function renderProducers() {
+            if (filteredProducers.length === 0) {
+                producersGrid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                errorState.classList.add('hidden');
+                resultsCount.textContent = 'No producers found';
+                return;
+            }
+
+            producersGrid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            errorState.classList.add('hidden');
+            
+            producersGrid.innerHTML = filteredProducers.map(producer => `
+                <div class="bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                    <a href="seller_page_screen.html?producer=${producer.id}" class="block">
+                        <div class="h-32 bg-gradient-to-br ${producer.bgColor} relative overflow-hidden">
+                            <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+                            <div class="absolute bottom-4 left-4">
+                                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                    <span class="text-primary font-bold text-lg">${producer.avatar}</span>
+                                </div>
+                            </div>
+                            <div class="absolute top-4 right-4">
+                                <span class="bg-white bg-opacity-90 text-text-primary px-2 py-1 rounded-full text-xs font-medium">
+                                    ${producer.productCount} products
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1 line-clamp-2">${producer.name}</h3>
+                            <div class="flex items-center text-text-secondary text-sm mb-2">
+                                <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                                <span class="truncate">${producer.regionName}</span>
+                            </div>
+                            <p class="text-text-tertiary text-sm mb-3 line-clamp-2">${producer.bio}</p>
+                            <div class="flex flex-wrap gap-1 mb-3">
+                                ${producer.categories.slice(0, 2).map(category => `
+                                    <span class="bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-full text-xs">${category}</span>
+                                `).join('')}
+                                ${producer.categories.length > 2 ? `<span class="text-text-tertiary text-xs">+${producer.categories.length - 2} more</span>` : ''}
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-text-tertiary text-sm">${producer.productCount} Products</span>
+                                <span class="text-primary hover:text-primary-dark font-medium text-sm transition-colors duration-200">View Products →</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            `).join('');
+
+            // Update results count
+            resultsCount.textContent = `Showing ${filteredProducers.length} producer${filteredProducers.length !== 1 ? 's' : ''}`;
+        }
+
+        // Show/hide loading indicator
+        function showLoadingIndicator() {
+            loadingIndicator.classList.remove('hidden');
+        }
+
+        function hideLoadingIndicator() {
+            loadingIndicator.classList.add('hidden');
+        }
+
+        // Show error state
+        function showErrorState() {
+            producersGrid.classList.add('hidden');
+            emptyState.classList.add('hidden');
+            errorState.classList.remove('hidden');
+            loadingSkeleton.classList.add('hidden');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                initializePage();
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                setTimeout(showErrorState, 1000);
+            }
+
+            // Filter event listeners
+            regionFilter.addEventListener('change', applyFilters);
+            clearFiltersBtn.addEventListener('click', clearAllFilters);
+            resetFiltersBtn.addEventListener('click', clearAllFilters);
+            retryBtn.addEventListener('click', () => {
+                errorState.classList.add('hidden');
+                loadingSkeleton.classList.remove('hidden');
+                initializePage();
+            });
+
+            // Search with debounce
+            let searchTimeout;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(applyFilters, 300);
+            });
+        });
+
+        // Make removeFilter function global
+        window.removeFilter = removeFilter;
+    </script>
+
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+<script id="dhws-elementInspector" src="../public/dhws-web-inspector.js"></script>
+<script id="dhws-errorTracker" src="../public/dhws-error-tracker.js"></script>
+</body>
+</html>

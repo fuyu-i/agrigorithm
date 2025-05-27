@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products Listing - AgriGorithm</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Header -->
+    <header class="bg-surface-raised border-b border-border sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Back Navigation -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="history.back()" class="flex items-center text-text-secondary hover:text-primary transition-colors duration-200" aria-label="Go back">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back
+                    </button>
+                </div>
+
+                <!-- Logo -->
+                <div class="flex-1 flex justify-center">
+                    <a href="home_screen.html" class="flex items-center">
+                        <svg class="w-8 h-8 text-primary mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="text-xl font-bold text-text-primary">AgriGorithm</span>
+                    </a>
+                </div>
+
+                <!-- Cart Icon -->
+                <div class="flex items-center">
+                    <button class="relative p-2 text-text-secondary hover:text-primary transition-colors duration-200" aria-label="Shopping cart">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01"></path>
+                        </svg>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-text-primary mb-2">All Products</h1>
+            <p class="text-text-secondary">Discover fresh, quality agricultural products from local farmers</p>
+        </div>
+
+        <!-- Filters and Sort Section -->
+        <div class="bg-surface-raised rounded-lg border border-border p-6 mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-6">
+                <!-- Filter Controls -->
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 flex-1">
+                    <!-- Region Filter -->
+                    <div class="relative">
+                        <label for="region-filter" class="sr-only">Filter by region</label>
+                        <select id="region-filter" class="input-field pr-8 appearance-none bg-white">
+                            <option value="">All Regions</option>
+                            <option value="california">California</option>
+                            <option value="texas">Texas</option>
+                            <option value="florida">Florida</option>
+                            <option value="oregon">Oregon</option>
+                            <option value="washington">Washington</option>
+                        </select>
+                        <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="relative">
+                        <label for="category-filter" class="sr-only">Filter by category</label>
+                        <select id="category-filter" class="input-field pr-8 appearance-none bg-white">
+                            <option value="">All Categories</option>
+                            <option value="vegetables">Vegetables</option>
+                            <option value="fruits">Fruits</option>
+                            <option value="grains">Grains</option>
+                            <option value="dairy">Dairy</option>
+                            <option value="herbs">Herbs</option>
+                        </select>
+                        <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+
+                    <!-- Tags Filter -->
+                    <div class="relative">
+                        <label for="tags-filter" class="sr-only">Filter by tags</label>
+                        <select id="tags-filter" class="input-field pr-8 appearance-none bg-white">
+                            <option value="">All Tags</option>
+                            <option value="organic">Organic</option>
+                            <option value="fresh">Fresh</option>
+                            <option value="local">Local</option>
+                            <option value="seasonal">Seasonal</option>
+                            <option value="premium">Premium</option>
+                        </select>
+                        <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+
+                    <!-- Clear Filters Button -->
+                    <button id="clear-filters" class="btn-secondary whitespace-nowrap">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Clear Filters
+                    </button>
+                </div>
+
+                <!-- Sort Controls -->
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm font-medium text-text-secondary whitespace-nowrap">Sort by:</span>
+                    <div class="relative">
+                        <label for="sort-select" class="sr-only">Sort products</label>
+                        <select id="sort-select" class="input-field pr-8 appearance-none bg-white min-w-0">
+                            <option value="newest">Newest First</option>
+                            <option value="price-low">Price (Low-High)</option>
+                            <option value="price-high">Price (High-Low)</option>
+                        </select>
+                        <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applied Filters Chips -->
+            <div id="applied-filters" class="mt-4 flex flex-wrap gap-2 hidden">
+                <span class="text-sm font-medium text-text-secondary">Applied filters:</span>
+            </div>
+        </div>
+
+        <!-- Results Summary -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center space-x-4">
+                <span id="results-count" class="text-text-secondary">Showing 20 of 156 products</span>
+                <div id="loading-indicator" class="hidden flex items-center space-x-2">
+                    <svg class="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="text-sm text-text-secondary">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <!-- Product cards will be dynamically inserted here -->
+        </div>
+
+        <!-- Loading Skeleton -->
+        <div id="loading-skeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            <!-- Skeleton cards -->
+            <div class="bg-surface-raised rounded-lg border border-border overflow-hidden animate-pulse">
+                <div class="aspect-square bg-surface"></div>
+                <div class="p-4 space-y-3">
+                    <div class="h-4 bg-surface rounded w-3/4"></div>
+                    <div class="h-3 bg-surface rounded w-1/2"></div>
+                    <div class="h-4 bg-surface rounded w-1/4"></div>
+                </div>
+            </div>
+            <div class="bg-surface-raised rounded-lg border border-border overflow-hidden animate-pulse">
+                <div class="aspect-square bg-surface"></div>
+                <div class="p-4 space-y-3">
+                    <div class="h-4 bg-surface rounded w-3/4"></div>
+                    <div class="h-3 bg-surface rounded w-1/2"></div>
+                    <div class="h-4 bg-surface rounded w-1/4"></div>
+                </div>
+            </div>
+            <div class="bg-surface-raised rounded-lg border border-border overflow-hidden animate-pulse">
+                <div class="aspect-square bg-surface"></div>
+                <div class="p-4 space-y-3">
+                    <div class="h-4 bg-surface rounded w-3/4"></div>
+                    <div class="h-3 bg-surface rounded w-1/2"></div>
+                    <div class="h-4 bg-surface rounded w-1/4"></div>
+                </div>
+            </div>
+            <div class="bg-surface-raised rounded-lg border border-border overflow-hidden animate-pulse">
+                <div class="aspect-square bg-surface"></div>
+                <div class="p-4 space-y-3">
+                    <div class="h-4 bg-surface rounded w-3/4"></div>
+                    <div class="h-3 bg-surface rounded w-1/2"></div>
+                    <div class="h-4 bg-surface rounded w-1/4"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-16">
+            <div class="max-w-md mx-auto">
+                <svg class="w-16 h-16 text-text-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <h2 class="text-xl font-semibold text-text-primary mb-2">No products found</h2>
+                <p class="text-text-secondary mb-6">Try adjusting your filters or search criteria to find what you're looking for.</p>
+                <button id="reset-filters" class="btn-primary">Reset Filters</button>
+            </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div id="load-more-container" class="text-center">
+            <button id="load-more-btn" class="btn-outline px-8 py-3">
+                <span id="load-more-text">Load More Products</span>
+                <svg id="load-more-loading" class="hidden animate-spin -ml-1 mr-3 h-5 w-5 text-primary inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-raised border-t border-border mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <svg class="w-8 h-8 text-primary mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="text-xl font-bold text-text-primary">AgriGorithm</span>
+                    </div>
+                    <p class="text-text-secondary">Connecting farmers with consumers for fresh, sustainable produce.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="home_screen.html" class="text-text-secondary hover:text-primary transition-colors duration-200">Home</a></li>
+                        <li><a href="products_listing_screen.html" class="text-text-secondary hover:text-primary transition-colors duration-200">Products</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">About</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Categories</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Vegetables</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Fruits</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Grains</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Dairy</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Help Center</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Shipping Info</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Returns</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-border mt-8 pt-8 text-center">
+                <p class="text-text-secondary">© 2025 AgriGorithm. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mock product data
+        const mockProducts = [
+            {
+                id: 1,
+                name: "Fresh Organic Tomatoes",
+                price: 4.99,
+                unit: "kg",
+                image: "https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
+                seller: "Green Fields Farm",
+                region: "california",
+                category: "vegetables",
+                tags: ["organic", "fresh", "local"],
+                dateAdded: new Date('2025-01-15')
+            },
+            {
+                id: 2,
+                name: "Sweet Bell Peppers",
+                price: 3.49,
+                unit: "lb",
+                image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
+                seller: "Sunny Valley Farm",
+                region: "california",
+                category: "vegetables",
+                tags: ["fresh", "colorful", "organic"],
+                dateAdded: new Date('2025-01-14')
+            },
+            {
+                id: 3,
+                name: "Fresh Carrots",
+                price: 1.99,
+                unit: "lb",
+                image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
+                seller: "Orange Grove Farm",
+                region: "florida",
+                category: "vegetables",
+                tags: ["organic", "sweet", "local"],
+                dateAdded: new Date('2025-01-13')
+            },
+            {
+                id: 4,
+                name: "Crispy Lettuce",
+                price: 2.99,
+                unit: "head",
+                image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
+                seller: "Green Leaf Gardens",
+                region: "oregon",
+                category: "vegetables",
+                tags: ["fresh", "crispy", "organic"],
+                dateAdded: new Date('2025-01-12')
+            },
+            {
+                id: 5,
+                name: "Red Apples",
+                price: 3.99,
+                unit: "lb",
+                image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
+                seller: "Apple Valley Orchard",
+                region: "washington",
+                category: "fruits",
+                tags: ["sweet", "crispy", "premium"],
+                dateAdded: new Date('2025-01-11')
+            },
+            {
+                id: 6,
+                name: "Fresh Strawberries",
+                price: 5.99,
+                unit: "lb",
+                image: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
+                seller: "Berry Fresh Farm",
+                region: "california",
+                category: "fruits",
+                tags: ["sweet", "seasonal", "premium"],
+                dateAdded: new Date('2025-01-10')
+            },
+            {
+                id: 7,
+                name: "Organic Spinach",
+                price: 2.49,
+                unit: "bunch",
+                image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
+                seller: "Leafy Greens Co",
+                region: "texas",
+                category: "vegetables",
+                tags: ["organic", "fresh", "healthy"],
+                dateAdded: new Date('2025-01-09')
+            },
+            {
+                id: 8,
+                name: "Yellow Corn",
+                price: 1.49,
+                unit: "ear",
+                image: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
+                seller: "Corn Field Farm",
+                region: "texas",
+                category: "grains",
+                tags: ["sweet", "fresh", "local"],
+                dateAdded: new Date('2025-01-08')
+            }
+        ];
+
+        let currentProducts = [];
+        let filteredProducts = [];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+
+        // DOM elements
+        const productsGrid = document.getElementById('products-grid');
+        const loadingSkeleton = document.getElementById('loading-skeleton');
+        const emptyState = document.getElementById('empty-state');
+        const loadMoreContainer = document.getElementById('load-more-container');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        const loadMoreText = document.getElementById('load-more-text');
+        const loadMoreLoading = document.getElementById('load-more-loading');
+        const resultsCount = document.getElementById('results-count');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const appliedFilters = document.getElementById('applied-filters');
+
+        // Filter elements
+        const regionFilter = document.getElementById('region-filter');
+        const categoryFilter = document.getElementById('category-filter');
+        const tagsFilter = document.getElementById('tags-filter');
+        const sortSelect = document.getElementById('sort-select');
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        const resetFiltersBtn = document.getElementById('reset-filters');
+
+        // Merge Sort Implementation
+        function mergeSort(arr, compareFunction) {
+            if (arr.length <= 1) return arr;
+
+            const mid = Math.floor(arr.length / 2);
+            const left = mergeSort(arr.slice(0, mid), compareFunction);
+            const right = mergeSort(arr.slice(mid), compareFunction);
+
+            return merge(left, right, compareFunction);
+        }
+
+        function merge(left, right, compareFunction) {
+            const result = [];
+            let leftIndex = 0;
+            let rightIndex = 0;
+
+            while (leftIndex < left.length && rightIndex < right.length) {
+                if (compareFunction(left[leftIndex], right[rightIndex]) <= 0) {
+                    result.push(left[leftIndex]);
+                    leftIndex++;
+                } else {
+                    result.push(right[rightIndex]);
+                    rightIndex++;
+                }
+            }
+
+            return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
+        }
+
+        // Sort functions
+        const sortFunctions = {
+            'newest': (a, b) => b.dateAdded - a.dateAdded,
+            'price-low': (a, b) => a.price - b.price,
+            'price-high': (a, b) => b.price - a.price
+        };
+
+        // Initialize page
+        function initializePage() {
+            currentProducts = [...mockProducts];
+            applyFiltersAndSort();
+            
+            // Hide loading skeleton and show content
+            setTimeout(() => {
+                loadingSkeleton.classList.add('hidden');
+                renderProducts();
+            }, 1000);
+        }
+
+        // Apply filters and sorting
+        function applyFiltersAndSort() {
+            showLoadingIndicator();
+            
+            setTimeout(() => {
+                let filtered = [...mockProducts];
+
+                // Apply filters
+                const region = regionFilter.value;
+                const category = categoryFilter.value;
+                const tags = tagsFilter.value;
+
+                if (region) {
+                    filtered = filtered.filter(product => product.region === region);
+                }
+
+                if (category) {
+                    filtered = filtered.filter(product => product.category === category);
+                }
+
+                if (tags) {
+                    filtered = filtered.filter(product => product.tags.includes(tags));
+                }
+
+                // Apply sorting using merge sort
+                const sortType = sortSelect.value;
+                if (sortFunctions[sortType]) {
+                    filtered = mergeSort(filtered, sortFunctions[sortType]);
+                }
+
+                filteredProducts = filtered;
+                currentPage = 1;
+                updateAppliedFilters();
+                renderProducts();
+                hideLoadingIndicator();
+            }, 500);
+        }
+
+        // Update applied filters display
+        function updateAppliedFilters() {
+            const filters = [];
+            
+            if (regionFilter.value) {
+                filters.push({
+                    type: 'region',
+                    value: regionFilter.value,
+                    label: regionFilter.options[regionFilter.selectedIndex].text
+                });
+            }
+            
+            if (categoryFilter.value) {
+                filters.push({
+                    type: 'category',
+                    value: categoryFilter.value,
+                    label: categoryFilter.options[categoryFilter.selectedIndex].text
+                });
+            }
+            
+            if (tagsFilter.value) {
+                filters.push({
+                    type: 'tags',
+                    value: tagsFilter.value,
+                    label: tagsFilter.options[tagsFilter.selectedIndex].text
+                });
+            }
+
+            if (filters.length > 0) {
+                appliedFilters.classList.remove('hidden');
+                const filtersHTML = filters.map(filter => `
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary bg-opacity-10 text-primary">
+                        ${filter.label}
+                        <button onclick="removeFilter('${filter.type}')" class="ml-2 hover:text-primary-dark" aria-label="Remove ${filter.label} filter">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </span>
+                `).join('');
+                
+                appliedFilters.innerHTML = `
+                    <span class="text-sm font-medium text-text-secondary">Applied filters:</span>
+                    ${filtersHTML}
+                `;
+            } else {
+                appliedFilters.classList.add('hidden');
+            }
+        }
+
+        // Remove specific filter
+        function removeFilter(filterType) {
+            switch(filterType) {
+                case 'region':
+                    regionFilter.value = '';
+                    break;
+                case 'category':
+                    categoryFilter.value = '';
+                    break;
+                case 'tags':
+                    tagsFilter.value = '';
+                    break;
+            }
+            applyFiltersAndSort();
+        }
+
+        // Clear all filters
+        function clearAllFilters() {
+            regionFilter.value = '';
+            categoryFilter.value = '';
+            tagsFilter.value = '';
+            sortSelect.value = 'newest';
+            applyFiltersAndSort();
+        }
+
+        // Render products
+        function renderProducts() {
+            const startIndex = 0;
+            const endIndex = currentPage * itemsPerPage;
+            const productsToShow = filteredProducts.slice(startIndex, endIndex);
+
+            if (filteredProducts.length === 0) {
+                productsGrid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                loadMoreContainer.classList.add('hidden');
+                resultsCount.textContent = 'No products found';
+                return;
+            }
+
+            productsGrid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            productsGrid.innerHTML = productsToShow.map(product => `
+                <div class="bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                    <a href="product_detail_screen.html" class="block">
+                        <div class="aspect-square overflow-hidden">
+                            <img src="${product.image}" 
+                                 alt="${product.name}" 
+                                 class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1 line-clamp-2">${product.name}</h3>
+                            <p class="text-text-secondary text-sm mb-2">${product.seller}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-primary">$${product.price.toFixed(2)}/${product.unit}</span>
+                                <div class="flex space-x-1">
+                                    ${product.tags.slice(0, 2).map(tag => `
+                                        <span class="bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-full text-xs">${tag}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            `).join('');
+
+            // Update results count
+            resultsCount.textContent = `Showing ${Math.min(endIndex, filteredProducts.length)} of ${filteredProducts.length} products`;
+
+            // Show/hide load more button
+            if (endIndex >= filteredProducts.length) {
+                loadMoreContainer.classList.add('hidden');
+            } else {
+                loadMoreContainer.classList.remove('hidden');
+            }
+        }
+
+        // Load more products
+        function loadMoreProducts() {
+            loadMoreText.textContent = 'Loading...';
+            loadMoreLoading.classList.remove('hidden');
+            loadMoreBtn.disabled = true;
+
+            setTimeout(() => {
+                currentPage++;
+                renderProducts();
+                
+                loadMoreText.textContent = 'Load More Products';
+                loadMoreLoading.classList.add('hidden');
+                loadMoreBtn.disabled = false;
+            }, 1000);
+        }
+
+        // Show/hide loading indicator
+        function showLoadingIndicator() {
+            loadingIndicator.classList.remove('hidden');
+        }
+
+        function hideLoadingIndicator() {
+            loadingIndicator.classList.add('hidden');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+
+            // Filter and sort event listeners
+            regionFilter.addEventListener('change', applyFiltersAndSort);
+            categoryFilter.addEventListener('change', applyFiltersAndSort);
+            tagsFilter.addEventListener('change', applyFiltersAndSort);
+            sortSelect.addEventListener('change', applyFiltersAndSort);
+            clearFiltersBtn.addEventListener('click', clearAllFilters);
+            resetFiltersBtn.addEventListener('click', clearAllFilters);
+            loadMoreBtn.addEventListener('click', loadMoreProducts);
+
+            // Infinite scroll
+            window.addEventListener('scroll', () => {
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+                    if (!loadMoreBtn.disabled && !loadMoreContainer.classList.contains('hidden')) {
+                        loadMoreProducts();
+                    }
+                }
+            });
+        });
+
+        // Make removeFilter function global
+        window.removeFilter = removeFilter;
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+<script id="dhws-elementInspector" src="../public/dhws-web-inspector.js"></script>
+<script id="dhws-errorTracker" src="../public/dhws-error-tracker.js"></script>
+</body>
+</html>

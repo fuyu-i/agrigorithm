@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - AgriGorithm</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Header -->
+    <header class="bg-surface-raised border-b border-border sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="home_screen.html" class="flex items-center">
+                        <svg class="w-8 h-8 text-primary mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="text-xl font-bold text-text-primary">AgriGorithm</span>
+                    </a>
+                </div>
+
+                <!-- Search Bar with Boyer-Moore Algorithm -->
+                <div class="flex-1 max-w-2xl mx-8">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input 
+                            id="search-input" 
+                            type="text" 
+                            placeholder="Search for products, producers, or regions..." 
+                            class="block w-full pl-10 pr-12 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+                            autocomplete="off"
+                        >
+                        <div id="search-loading" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
+                            <svg class="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Results Dropdown -->
+                    <div id="search-results" class="absolute top-full left-0 right-0 bg-surface-raised border border-border rounded-lg shadow-lg mt-1 hidden z-50 max-h-96 overflow-y-auto">
+                        <div id="search-content" class="p-4">
+                            <!-- Search results will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Button -->
+                <div class="flex items-center">
+                    <a href="login_profile_screen.html" class="flex items-center space-x-2 text-text-secondary hover:text-primary transition-colors duration-200 p-2 rounded-lg hover:bg-surface">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <span class="hidden sm:block font-medium">Profile</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Marketplace Banner -->
+        <section class="py-8">
+            <div class="relative bg-gradient-to-r from-primary to-primary-light rounded-2xl overflow-hidden">
+                <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+                <div class="relative px-8 py-12 sm:px-12 sm:py-16">
+                    <div class="max-w-3xl">
+                        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+                            Fresh from <span class="text-primary-light">Farm to Table</span>
+                        </h1>
+                        <p class="text-lg text-white text-opacity-90 mb-6">
+                            Discover the finest agricultural products from local farmers and producers. Quality guaranteed, freshness delivered.
+                        </p>
+                        <a href="products_listing_screen.html" class="inline-flex items-center bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200">
+                            Explore Products
+                            <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <!-- Decorative Elements -->
+                <div class="absolute top-0 right-0 w-64 h-64 opacity-20">
+                    <svg viewBox="0 0 200 200" class="w-full h-full">
+                        <circle cx="100" cy="100" r="80" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+                        <circle cx="100" cy="100" r="60" fill="none" stroke="white" stroke-width="2" opacity="0.5"/>
+                        <circle cx="100" cy="100" r="40" fill="none" stroke="white" stroke-width="2" opacity="0.7"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Explore Local Producers Section -->
+        <section class="py-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-text-primary">Explore Local Producers</h2>
+                <a href="explore_local_producers_screen.html" class="flex items-center text-primary hover:text-primary-dark font-medium transition-colors duration-200">
+                    View All
+                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <div class="flex space-x-4 pb-4" id="producers-container">
+                    <!-- Producer Card 1 -->
+                    <div class="flex-shrink-0 w-72 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="h-32 bg-gradient-to-br from-primary-light to-primary relative overflow-hidden">
+                            <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+                            <div class="absolute bottom-4 left-4">
+                                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                                    <span class="text-primary font-bold text-lg">GF</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Green Fields Farm</h3>
+                            <div class="flex items-center text-text-secondary text-sm mb-2">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                                California, USA
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-text-tertiary text-sm">24 Products</span>
+                                <a href="products_listing_screen.html" class="text-primary hover:text-primary-dark font-medium text-sm transition-colors duration-200">View Products</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Producer Card 2 -->
+                    <div class="flex-shrink-0 w-72 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="h-32 bg-gradient-to-br from-success to-primary relative overflow-hidden">
+                            <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+                            <div class="absolute bottom-4 left-4">
+                                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                                    <span class="text-primary font-bold text-lg">SF</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Sunny Acres Farm</h3>
+                            <div class="flex items-center text-text-secondary text-sm mb-2">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                                Texas, USA
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-text-tertiary text-sm">18 Products</span>
+                                <a href="products_listing_screen.html" class="text-primary hover:text-primary-dark font-medium text-sm transition-colors duration-200">View Products</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Producer Card 3 -->
+                    <div class="flex-shrink-0 w-72 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="h-32 bg-gradient-to-br from-warning to-primary-light relative overflow-hidden">
+                            <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+                            <div class="absolute bottom-4 left-4">
+                                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                                    <span class="text-primary font-bold text-lg">VH</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Valley Harvest Co.</h3>
+                            <div class="flex items-center text-text-secondary text-sm mb-2">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                                Oregon, USA
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-text-tertiary text-sm">31 Products</span>
+                                <a href="products_listing_screen.html" class="text-primary hover:text-primary-dark font-medium text-sm transition-colors duration-200">View Products</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Producer Card 4 -->
+                    <div class="flex-shrink-0 w-72 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="h-32 bg-gradient-to-br from-info to-primary relative overflow-hidden">
+                            <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+                            <div class="absolute bottom-4 left-4">
+                                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                                    <span class="text-primary font-bold text-lg">MO</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Mountain Organic</h3>
+                            <div class="flex items-center text-text-secondary text-sm mb-2">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                                </svg>
+                                Colorado, USA
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-text-tertiary text-sm">15 Products</span>
+                                <a href="products_listing_screen.html" class="text-primary hover:text-primary-dark font-medium text-sm transition-colors duration-200">View Products</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products Section -->
+        <section class="py-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-text-primary">Featured Products</h2>
+                <a href="products_listing_screen.html" class="flex items-center text-primary hover:text-primary-dark font-medium transition-colors duration-200">
+                    View All
+                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <div class="flex space-x-4 pb-4" id="products-container">
+                    <!-- Product Card 1 -->
+                    <div class="flex-shrink-0 w-64 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="aspect-square overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                                 alt="Fresh Organic Tomatoes" 
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Fresh Organic Tomatoes</h3>
+                            <p class="text-text-secondary text-sm mb-2">Green Fields Farm</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-primary">$4.99/kg</span>
+                                <a href="product_detail_screen.html" class="text-primary hover:text-primary-dark transition-colors duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Card 2 -->
+                    <div class="flex-shrink-0 w-64 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="aspect-square overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                                 alt="Fresh Lettuce" 
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Fresh Lettuce</h3>
+                            <p class="text-text-secondary text-sm mb-2">Sunny Acres Farm</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-primary">$2.99/head</span>
+                                <a href="product_detail_screen.html" class="text-primary hover:text-primary-dark transition-colors duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Card 3 -->
+                    <div class="flex-shrink-0 w-64 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="aspect-square overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                                 alt="Bell Peppers" 
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Bell Peppers</h3>
+                            <p class="text-text-secondary text-sm mb-2">Valley Harvest Co.</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-primary">$3.49/lb</span>
+                                <a href="product_detail_screen.html" class="text-primary hover:text-primary-dark transition-colors duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Card 4 -->
+                    <div class="flex-shrink-0 w-64 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="aspect-square overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                                 alt="Fresh Carrots" 
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Fresh Carrots</h3>
+                            <p class="text-text-secondary text-sm mb-2">Mountain Organic</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-primary">$1.99/lb</span>
+                                <a href="product_detail_screen.html" class="text-primary hover:text-primary-dark transition-colors duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Card 5 -->
+                    <div class="flex-shrink-0 w-64 bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                        <div class="aspect-square overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3" 
+                                 alt="Organic Apples" 
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold text-text-primary mb-1">Organic Apples</h3>
+                            <p class="text-text-secondary text-sm mb-2">Green Fields Farm</p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-primary">$5.99/lb</span>
+                                <a href="product_detail_screen.html" class="text-primary hover:text-primary-dark transition-colors duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden max-w-md mx-auto mt-16 text-center">
+            <div class="bg-surface-raised rounded-lg p-8 border border-border">
+                <svg class="w-16 h-16 text-text-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h2 class="text-xl font-semibold text-text-primary mb-2">Something went wrong</h2>
+                <p class="text-text-secondary mb-6">We couldn't load the content. Please try again.</p>
+                <button id="retry-btn" class="btn-primary">Try Again</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-raised border-t border-border mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <svg class="w-8 h-8 text-primary mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="text-xl font-bold text-text-primary">AgriGorithm</span>
+                    </div>
+                    <p class="text-text-secondary">Connecting farmers with consumers for fresh, sustainable produce.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="home_screen.html" class="text-text-secondary hover:text-primary transition-colors duration-200">Home</a></li>
+                        <li><a href="products_listing_screen.html" class="text-text-secondary hover:text-primary transition-colors duration-200">Products</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">About</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Categories</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Vegetables</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Fruits</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Grains</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Dairy</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-text-primary mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Help Center</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Shipping Info</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Returns</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-primary transition-colors duration-200">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-border mt-8 pt-8 text-center">
+                <p class="text-text-secondary">© 2025 AgriGorithm. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Boyer-Moore Algorithm Implementation for Search
+        class BoyerMoore {
+            constructor(pattern) {
+                this.pattern = pattern.toLowerCase();
+                this.badCharTable = this.buildBadCharTable();
+            }
+
+            buildBadCharTable() {
+                const table = {};
+                const pattern = this.pattern;
+                
+                for (let i = 0; i < pattern.length - 1; i++) {
+                    table[pattern[i]] = pattern.length - 1 - i;
+                }
+                
+                return table;
+            }
+
+            search(text) {
+                const textLower = text.toLowerCase();
+                const pattern = this.pattern;
+                const textLen = textLower.length;
+                const patternLen = pattern.length;
+                
+                if (patternLen === 0) return [];
+                
+                const matches = [];
+                let skip = 0;
+                
+                while (skip <= textLen - patternLen) {
+                    let j = patternLen - 1;
+                    
+                    while (j >= 0 && pattern[j] === textLower[skip + j]) {
+                        j--;
+                    }
+                    
+                    if (j < 0) {
+                        matches.push(skip);
+                        skip += patternLen;
+                    } else {
+                        const badChar = textLower[skip + j];
+                        skip += Math.max(1, this.badCharTable[badChar] || patternLen);
+                    }
+                }
+                
+                return matches;
+            }
+        }
+
+        // Mock data for search
+        const mockData = {
+            products: [
+                { id: 1, name: 'Fresh Organic Tomatoes', seller: 'Green Fields Farm', region: 'California', category: 'Vegetables', price: 4.99 },
+                { id: 2, name: 'Fresh Lettuce', seller: 'Sunny Acres Farm', region: 'Texas', category: 'Vegetables', price: 2.99 },
+                { id: 3, name: 'Bell Peppers', seller: 'Valley Harvest Co.', region: 'Oregon', category: 'Vegetables', price: 3.49 },
+                { id: 4, name: 'Fresh Carrots', seller: 'Mountain Organic', region: 'Colorado', category: 'Vegetables', price: 1.99 },
+                { id: 5, name: 'Organic Apples', seller: 'Green Fields Farm', region: 'California', category: 'Fruits', price: 5.99 },
+                { id: 6, name: 'Sweet Corn', seller: 'Sunny Acres Farm', region: 'Texas', category: 'Vegetables', price: 3.99 },
+                { id: 7, name: 'Organic Strawberries', seller: 'Valley Harvest Co.', region: 'Oregon', category: 'Fruits', price: 7.99 },
+                { id: 8, name: 'Fresh Spinach', seller: 'Mountain Organic', region: 'Colorado', category: 'Vegetables', price: 2.49 }
+            ],
+            producers: [
+                { id: 1, name: 'Green Fields Farm', region: 'California', productCount: 24 },
+                { id: 2, name: 'Sunny Acres Farm', region: 'Texas', productCount: 18 },
+                { id: 3, name: 'Valley Harvest Co.', region: 'Oregon', productCount: 31 },
+                { id: 4, name: 'Mountain Organic', region: 'Colorado', productCount: 15 }
+            ]
+        };
+
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const searchResults = document.getElementById('search-results');
+            const searchContent = document.getElementById('search-content');
+            const searchLoading = document.getElementById('search-loading');
+            let searchTimeout;
+
+            function performSearch(query) {
+                if (!query.trim()) {
+                    searchResults.classList.add('hidden');
+                    return;
+                }
+
+                searchLoading.classList.remove('hidden');
+                
+                // Simulate API delay
+                setTimeout(() => {
+                    const boyerMoore = new BoyerMoore(query);
+                    const results = {
+                        products: [],
+                        producers: []
+                    };
+
+                    // Search products with exact matches prioritized
+                    mockData.products.forEach(product => {
+                        const searchText = `${product.name} ${product.seller} ${product.region} ${product.category}`;
+                        const matches = boyerMoore.search(searchText);
+                        
+                        if (matches.length > 0) {
+                            // Prioritize exact matches in product name
+                            const nameMatches = boyerMoore.search(product.name);
+                            product.priority = nameMatches.length > 0 ? 1 : 2;
+                            results.products.push(product);
+                        }
+                    });
+
+                    // Search producers
+                    mockData.producers.forEach(producer => {
+                        const searchText = `${producer.name} ${producer.region}`;
+                        const matches = boyerMoore.search(searchText);
+                        
+                        if (matches.length > 0) {
+                            results.producers.push(producer);
+                        }
+                    });
+
+                    // Sort products by priority (exact matches first)
+                    results.products.sort((a, b) => a.priority - b.priority);
+
+                    displaySearchResults(results, query);
+                    searchLoading.classList.add('hidden');
+                }, 300);
+            }
+
+            function displaySearchResults(results, query) {
+                let html = '';
+
+                if (results.products.length === 0 && results.producers.length === 0) {
+                    html = `
+                        <div class="text-center py-8">
+                            <svg class="w-12 h-12 text-text-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            <p class="text-text-secondary">No results found for "${query}"</p>
+                        </div>
+                    `;
+                } else {
+                    if (results.products.length > 0) {
+                        html += '<div class="mb-4"><h3 class="font-semibold text-text-primary mb-2">Products</h3>';
+                        results.products.slice(0, 5).forEach(product => {
+                            html += `
+                                <a href="product_detail_screen.html" class="block p-3 hover:bg-surface rounded-lg transition-colors duration-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="font-medium text-text-primary">${product.name}</p>
+                                            <p class="text-sm text-text-secondary">${product.seller} • $${product.price}</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            `;
+                        });
+                        html += '</div>';
+                    }
+
+                    if (results.producers.length > 0) {
+                        html += '<div><h3 class="font-semibold text-text-primary mb-2">Producers</h3>';
+                        results.producers.slice(0, 3).forEach(producer => {
+                            html += `
+                                <a href="products_listing_screen.html" class="block p-3 hover:bg-surface rounded-lg transition-colors duration-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-success bg-opacity-10 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="font-medium text-text-primary">${producer.name}</p>
+                                            <p class="text-sm text-text-secondary">${producer.region} • ${producer.productCount} products</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            `;
+                        });
+                        html += '</div>';
+                    }
+                }
+
+                searchContent.innerHTML = html;
+                searchResults.classList.remove('hidden');
+            }
+
+            // Search input event listener with debounce
+            searchInput.addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                const query = e.target.value;
+
+                if (query.trim() === '') {
+                    searchResults.classList.add('hidden');
+                    return;
+                }
+
+                searchTimeout = setTimeout(() => {
+                    performSearch(query);
+                }, 300);
+            });
+
+            // Hide search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.add('hidden');
+                }
+            });
+
+            // Show search results when focusing on input with existing query
+            searchInput.addEventListener('focus', function() {
+                if (this.value.trim() && searchContent.innerHTML) {
+                    searchResults.classList.remove('hidden');
+                }
+            });
+
+            // Error handling and retry functionality
+            const errorState = document.getElementById('error-state');
+            const retryBtn = document.getElementById('retry-btn');
+
+            if (retryBtn) {
+                retryBtn.addEventListener('click', () => {
+                    location.reload();
+                });
+            }
+
+            // Simulate potential loading error (uncomment to test)
+            // setTimeout(() => {
+            //     document.querySelector('main').classList.add('hidden');
+            //     errorState.classList.remove('hidden');
+            // }, 5000);
+        });
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+<script id="dhws-elementInspector" src="../public/dhws-web-inspector.js"></script>
+<script id="dhws-errorTracker" src="../public/dhws-error-tracker.js"></script>
+</body>
+</html>

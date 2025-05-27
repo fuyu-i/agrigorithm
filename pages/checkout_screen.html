@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - AgriGorithm</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+        /* Custom animations for checkout */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes confetti {
+            0% {
+                transform: rotateZ(15deg) rotateY(0deg) translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: rotateZ(15deg) rotateY(360deg) translate(-300px, 300px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes checkmark {
+            0% {
+                stroke-dashoffset: 100;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: scale(1);
+            }
+            40%, 43% {
+                transform: scale(1.1);
+            }
+            70% {
+                transform: scale(1.05);
+            }
+            90% {
+                transform: scale(1.02);
+            }
+        }
+
+        .slide-down {
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            animation: confetti 3s ease-out infinite;
+        }
+
+        .confetti-piece:nth-child(odd) {
+            background: #16a34a;
+            animation-delay: 0.5s;
+        }
+
+        .confetti-piece:nth-child(3n) {
+            background: #f59e0b;
+            animation-delay: 1s;
+        }
+
+        .checkmark-circle {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: checkmark 1s ease-in-out forwards;
+        }
+
+        .success-bounce {
+            animation: bounce 1s ease-in-out;
+        }
+
+        .processing-dots::after {
+            content: '';
+            animation: dots 1.4s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% {
+                color: rgba(0, 0, 0, 0);
+                text-shadow: .25em 0 0 rgba(0, 0, 0, 0), .5em 0 0 rgba(0, 0, 0, 0), .75em 0 0 rgba(0, 0, 0, 0);
+            }
+            40% {
+                color: currentColor;
+                text-shadow: .25em 0 0 rgba(0, 0, 0, 0), .5em 0 0 rgba(0, 0, 0, 0), .75em 0 0 rgba(0, 0, 0, 0);
+            }
+            60% {
+                text-shadow: .25em 0 0 currentColor, .5em 0 0 rgba(0, 0, 0, 0), .75em 0 0 rgba(0, 0, 0, 0);
+            }
+            80%, 100% {
+                text-shadow: .25em 0 0 currentColor, .5em 0 0 currentColor, .75em 0 0 currentColor;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen">
+    <!-- Header -->
+    <header class="bg-surface-raised border-b border-border sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Back Navigation -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="history.back()" class="flex items-center text-text-secondary hover:text-primary transition-colors duration-200" aria-label="Go back">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back
+                    </button>
+                </div>
+
+                <!-- Logo -->
+                <div class="flex-1 flex justify-center">
+                    <a href="home_screen.html" class="flex items-center">
+                        <svg class="w-8 h-8 text-primary mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="text-xl font-bold text-text-primary">AgriGorithm</span>
+                    </a>
+                </div>
+
+                <!-- Security Badge -->
+                <div class="flex items-center">
+                    <div class="flex items-center space-x-2 text-text-secondary p-2">
+                        <svg class="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                        </svg>
+                        <span class="hidden sm:block text-sm font-medium">Secure Checkout</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-text-primary mb-2">Checkout</h1>
+            <p class="text-text-secondary">Review your order and complete your purchase</p>
+        </div>
+
+        <!-- Checkout Content -->
+        <div id="checkout-content" class="space-y-8">
+            <!-- Progress Indicator -->
+            <div class="bg-surface-raised rounded-lg border border-border p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div id="step-1" class="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm font-medium transition-all duration-300">
+                            1
+                        </div>
+                        <span class="text-sm font-medium text-text-primary">Cart Review</span>
+                    </div>
+                    <div class="flex-1 h-0.5 mx-4 bg-border relative">
+                        <div id="progress-1" class="h-full bg-primary transition-all duration-500 w-0"></div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div id="step-2" class="flex items-center justify-center w-8 h-8 rounded-full bg-border text-text-tertiary text-sm font-medium transition-all duration-300">
+                            2
+                        </div>
+                        <span class="text-sm font-medium text-text-secondary">Shipping Info</span>
+                    </div>
+                    <div class="flex-1 h-0.5 mx-4 bg-border relative">
+                        <div id="progress-2" class="h-full bg-primary transition-all duration-500 w-0"></div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div id="step-3" class="flex items-center justify-center w-8 h-8 rounded-full bg-border text-text-tertiary text-sm font-medium transition-all duration-300">
+                            3
+                        </div>
+                        <span class="text-sm font-medium text-text-secondary">Payment</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Cart Review -->
+            <div id="cart-section" class="bg-surface-raised rounded-lg border border-border overflow-hidden">
+                <div class="p-6 border-b border-border">
+                    <h2 class="text-xl font-semibold text-text-primary flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01"></path>
+                        </svg>
+                        Cart Review
+                    </h2>
+                    <p class="text-text-secondary text-sm mt-1">Review your selected items before proceeding</p>
+                </div>
+                <div class="p-6">
+                    <div id="cart-items" class="space-y-4 mb-6">
+                        <!-- Cart items will be populated here -->
+                    </div>
+                    <div class="border-t border-border pt-4">
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-text-secondary">
+                                <span>Subtotal</span>
+                                <span id="subtotal">$24.47</span>
+                            </div>
+                            <div class="flex justify-between text-text-secondary">
+                                <span>Shipping</span>
+                                <span id="shipping">$4.99</span>
+                            </div>
+                            <div class="flex justify-between text-text-secondary">
+                                <span>Tax</span>
+                                <span id="tax">$2.45</span>
+                            </div>
+                            <div class="border-t border-border pt-2">
+                                <div class="flex justify-between text-lg font-semibold text-text-primary">
+                                    <span>Total</span>
+                                    <span id="total">$31.91</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="continue-to-shipping" class="w-full btn-primary">
+                        Continue to Shipping
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Shipping Information -->
+            <div id="shipping-section" class="hidden bg-surface-raised rounded-lg border border-border overflow-hidden">
+                <div class="p-6 border-b border-border">
+                    <h2 class="text-xl font-semibold text-text-primary flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Shipping Information
+                    </h2>
+                    <p class="text-text-secondary text-sm mt-1">Where should we deliver your order?</p>
+                </div>
+                <div class="p-6">
+                    <form class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="first-name" class="block text-sm font-medium text-text-primary mb-1">First Name</label>
+                                <input type="text" id="first-name" name="first-name" class="input-field" placeholder="John" required>
+                            </div>
+                            <div>
+                                <label for="last-name" class="block text-sm font-medium text-text-primary mb-1">Last Name</label>
+                                <input type="text" id="last-name" name="last-name" class="input-field" placeholder="Doe" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-text-primary mb-1">Address</label>
+                            <input type="text" id="address" name="address" class="input-field" placeholder="123 Main Street" required>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label for="city" class="block text-sm font-medium text-text-primary mb-1">City</label>
+                                <input type="text" id="city" name="city" class="input-field" placeholder="Makati" required>
+                            </div>
+                            <div>
+                                <label for="province" class="block text-sm font-medium text-text-primary mb-1">Province</label>
+                                <select id="province" name="province" class="input-field" required>
+                                    <option value="">Select Province</option>
+                                    <option value="metro-manila">Metro Manila</option>
+                                    <option value="bulacan">Bulacan</option>
+                                    <option value="cavite">Cavite</option>
+                                    <option value="laguna">Laguna</option>
+                                    <option value="rizal">Rizal</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="postal-code" class="block text-sm font-medium text-text-primary mb-1">Postal Code</label>
+                                <input type="text" id="postal-code" name="postal-code" class="input-field" placeholder="1200" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-text-primary mb-1">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="input-field" placeholder="09123456789" required>
+                        </div>
+                    </form>
+                    <div class="flex space-x-4 mt-6">
+                        <button id="back-to-cart" class="flex-1 btn-secondary">
+                            Back to Cart
+                        </button>
+                        <button id="continue-to-payment" class="flex-1 btn-primary">
+                            Continue to Payment
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Payment Details -->
+            <div id="payment-section" class="hidden bg-surface-raised rounded-lg border border-border overflow-hidden">
+                <div class="p-6 border-b border-border">
+                    <h2 class="text-xl font-semibold text-text-primary flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Payment Details
+                    </h2>
+                    <p class="text-text-secondary text-sm mt-1">Complete your order with secure payment</p>
+                </div>
+                <div class="p-6">
+                    <div class="bg-surface rounded-lg p-4 mb-6">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-8 h-8 text-info" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            <div>
+                                <h3 class="font-medium text-text-primary">Demo Mode</h3>
+                                <p class="text-text-secondary text-sm">This is a demonstration. No actual payment will be processed.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form class="space-y-4">
+                        <div>
+                            <label for="card-number" class="block text-sm font-medium text-text-primary mb-1">Card Number</label>
+                            <input type="text" id="card-number" name="card-number" class="input-field" placeholder="1234 5678 9012 3456" maxlength="19">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="expiry" class="block text-sm font-medium text-text-primary mb-1">Expiry Date</label>
+                                <input type="text" id="expiry" name="expiry" class="input-field" placeholder="MM/YY" maxlength="5">
+                            </div>
+                            <div>
+                                <label for="cvv" class="block text-sm font-medium text-text-primary mb-1">CVV</label>
+                                <input type="text" id="cvv" name="cvv" class="input-field" placeholder="123" maxlength="3">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="card-name" class="block text-sm font-medium text-text-primary mb-1">Cardholder Name</label>
+                            <input type="text" id="card-name" name="card-name" class="input-field" placeholder="John Doe">
+                        </div>
+                    </form>
+                    
+                    <div class="flex space-x-4 mt-6">
+                        <button id="back-to-shipping" class="flex-1 btn-secondary">
+                            Back to Shipping
+                        </button>
+                        <button id="place-order" class="flex-1 btn-primary">
+                            <span id="place-order-text">Place Order - $31.91</span>
+                            <svg id="place-order-loading" class="hidden animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div id="success-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-surface-raised rounded-lg p-8 max-w-md w-full text-center relative overflow-hidden">
+                <!-- Confetti Container -->
+                <div id="confetti-container" class="absolute inset-0 pointer-events-none">
+                    <!-- Confetti pieces will be added here -->
+                </div>
+                
+                <!-- Success Content -->
+                <div class="relative z-10">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-success bg-opacity-10 mb-4 success-bounce">
+                        <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path class="checkmark-circle" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-text-primary mb-2">Order Placed Successfully!</h2>
+                    <p class="text-text-secondary mb-6">Thank you for your purchase. Your order #<span class="font-medium text-text-primary">AGM-2025-0001</span> has been confirmed.</p>
+                    <div class="space-y-3">
+                        <button id="continue-shopping" class="w-full btn-primary">
+                            Continue Shopping
+                        </button>
+                        <button id="view-orders" class="w-full btn-secondary">
+                            View My Orders
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing Modal -->
+        <div id="processing-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-surface-raised rounded-lg p-8 max-w-sm w-full text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary bg-opacity-10 mb-4">
+                    <svg class="animate-spin w-8 h-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold text-text-primary mb-2">Processing Order</h2>
+                <p class="text-text-secondary processing-dots">Please wait while we process your payment</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Mock cart data
+        const mockCartItems = [
+            {
+                id: 1,
+                name: "Fresh Organic Tomatoes",
+                price: 4.99,
+                quantity: 2,
+                unit: "kg",
+                image: "https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=300&auto=format&fit=crop",
+                seller: "Green Fields Farm"
+            },
+            {
+                id: 2,
+                name: "Sweet Bell Peppers",
+                price: 3.49,
+                quantity: 1,
+                unit: "lb",
+                image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=300&auto=format&fit=crop",
+                seller: "Sunny Valley Farm"
+            },
+            {
+                id: 3,
+                name: "Fresh Lettuce",
+                price: 2.99,
+                quantity: 3,
+                unit: "head",
+                image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=300&auto=format&fit=crop",
+                seller: "Green Leaf Gardens"
+            }
+        ];
+
+        let currentStep = 1;
+        
+        // DOM elements
+        const cartSection = document.getElementById('cart-section');
+        const shippingSection = document.getElementById('shipping-section');
+        const paymentSection = document.getElementById('payment-section');
+        const successModal = document.getElementById('success-modal');
+        const processingModal = document.getElementById('processing-modal');
+        const cartItems = document.getElementById('cart-items');
+        
+        // Step indicators
+        const step1 = document.getElementById('step-1');
+        const step2 = document.getElementById('step-2');
+        const step3 = document.getElementById('step-3');
+        const progress1 = document.getElementById('progress-1');
+        const progress2 = document.getElementById('progress-2');
+        
+        // Buttons
+        const continueToShipping = document.getElementById('continue-to-shipping');
+        const backToCart = document.getElementById('back-to-cart');
+        const continueToPayment = document.getElementById('continue-to-payment');
+        const backToShipping = document.getElementById('back-to-shipping');
+        const placeOrder = document.getElementById('place-order');
+        const placeOrderText = document.getElementById('place-order-text');
+        const placeOrderLoading = document.getElementById('place-order-loading');
+        const continueShoppingBtn = document.getElementById('continue-shopping');
+        const viewOrdersBtn = document.getElementById('view-orders');
+
+        // Initialize page
+        function initializePage() {
+            renderCartItems();
+            calculateTotals();
+            setupFormValidation();
+        }
+
+        // Render cart items
+        function renderCartItems() {
+            cartItems.innerHTML = mockCartItems.map(item => `
+                <div class="flex items-center space-x-4 p-4 bg-surface rounded-lg">
+                    <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg">
+                    <div class="flex-1">
+                        <h3 class="font-medium text-text-primary">${item.name}</h3>
+                        <p class="text-text-secondary text-sm">${item.seller}</p>
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="text-text-tertiary text-sm">Qty: ${item.quantity} ${item.unit}${item.quantity > 1 ? 's' : ''}</span>
+                            <span class="font-semibold text-primary">$${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Calculate totals
+        function calculateTotals() {
+            const subtotal = mockCartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+            const shipping = 4.99;
+            const tax = subtotal * 0.1; // 10% tax
+            const total = subtotal + shipping + tax;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('shipping').textContent = `$${shipping.toFixed(2)}`;
+            document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+            
+            // Update place order button
+            placeOrderText.textContent = `Place Order - $${total.toFixed(2)}`;
+        }
+
+        // Update step indicators
+        function updateStepIndicators(step) {
+            // Reset all steps
+            [step1, step2, step3].forEach((el, index) => {
+                if (index + 1 <= step) {
+                    el.classList.remove('bg-border', 'text-text-tertiary');
+                    el.classList.add('bg-primary', 'text-white');
+                    if (index + 1 < step) {
+                        el.innerHTML = '✓';
+                    } else {
+                        el.textContent = index + 1;
+                    }
+                } else {
+                    el.classList.remove('bg-primary', 'text-white');
+                    el.classList.add('bg-border', 'text-text-tertiary');
+                    el.textContent = index + 1;
+                }
+            });
+
+            // Update progress bars
+            progress1.style.width = step >= 2 ? '100%' : '0%';
+            progress2.style.width = step >= 3 ? '100%' : '0%';
+        }
+
+        // Show step with animation
+        function showStep(step) {
+            // Hide all sections
+            [cartSection, shippingSection, paymentSection].forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show current step with animation
+            setTimeout(() => {
+                switch(step) {
+                    case 1:
+                        cartSection.classList.remove('hidden');
+                        cartSection.classList.add('slide-down');
+                        break;
+                    case 2:
+                        shippingSection.classList.remove('hidden');
+                        shippingSection.classList.add('slide-down');
+                        break;
+                    case 3:
+                        paymentSection.classList.remove('hidden');
+                        paymentSection.classList.add('slide-down');
+                        break;
+                }
+            }, 100);
+
+            updateStepIndicators(step);
+        }
+
+        // Setup form validation
+        function setupFormValidation() {
+            // Card number formatting
+            const cardNumberInput = document.getElementById('card-number');
+            cardNumberInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue;
+            });
+
+            // Expiry date formatting
+            const expiryInput = document.getElementById('expiry');
+            expiryInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
+            });
+
+            // CVV numeric only
+            const cvvInput = document.getElementById('cvv');
+            cvvInput.addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#22c55e', '#16a34a', '#f59e0b', '#3b82f6', '#ef4444'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                container.appendChild(confetti);
+            }
+
+            // Clean up confetti after animation
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 6000);
+        }
+
+        // Process order with animations
+        function processOrder() {
+            // Disable button and show loading
+            placeOrder.disabled = true;
+            placeOrderText.classList.add('hidden');
+            placeOrderLoading.classList.remove('hidden');
+
+            // Show processing modal
+            processingModal.classList.remove('hidden');
+
+            // Simulate processing time
+            setTimeout(() => {
+                processingModal.classList.add('hidden');
+                successModal.classList.remove('hidden');
+                createConfetti();
+                
+                // Reset button state
+                placeOrder.disabled = false;
+                placeOrderText.classList.remove('hidden');
+                placeOrderLoading.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+
+            // Navigation buttons
+            continueToShipping.addEventListener('click', () => {
+                currentStep = 2;
+                showStep(currentStep);
+            });
+
+            backToCart.addEventListener('click', () => {
+                currentStep = 1;
+                showStep(currentStep);
+            });
+
+            continueToPayment.addEventListener('click', () => {
+                currentStep = 3;
+                showStep(currentStep);
+            });
+
+            backToShipping.addEventListener('click', () => {
+                currentStep = 2;
+                showStep(currentStep);
+            });
+
+            placeOrder.addEventListener('click', processOrder);
+
+            // Success modal buttons
+            continueShoppingBtn.addEventListener('click', () => {
+                window.location.href = 'products_listing_screen.html';
+            });
+
+            viewOrdersBtn.addEventListener('click', () => {
+                window.location.href = 'profile_screen.html';
+            });
+
+            // Close modals on outside click
+            [successModal, processingModal].forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+<script id="dhws-elementInspector" src="../public/dhws-web-inspector.js"></script>
+<script id="dhws-errorTracker" src="../public/dhws-error-tracker.js"></script>
+</body>
+</html>
