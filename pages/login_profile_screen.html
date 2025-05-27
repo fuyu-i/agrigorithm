@@ -226,7 +226,7 @@
 
             <!-- Profile View -->
             <div id="profile-view" class="bg-surface-raised rounded-lg border border-border p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-6">
+                <!-- <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-semibold text-text-primary">Profile Information</h2>
                     <button id="edit-profile-btn" class="btn-outline">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,6 +234,27 @@
                         </svg>
                         Edit Profile
                     </button>
+                </div> -->
+
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-text-primary">Profile Information</h2>
+                    <div class="flex gap-2">
+                        <button id="view-products-btn" class="btn-outline">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm16 4H5v10h14V8z" />
+                        </svg>
+                        View Products
+                        </button>
+
+                        <button id="edit-profile-btn" class="btn-outline">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit Profile
+                        </button>
+                    </div>
                 </div>
 
                 <div class="space-y-4">
@@ -437,6 +458,7 @@
             const eyeClosed = document.getElementById('eye-closed');
             const registerForm = document.getElementById('register-form');
             const loginError = document.getElementById('login-error');
+            const viewSellerProducts = document.getElementById('view-products-btn');
 
 
             // Initialize view based on login status
@@ -445,6 +467,16 @@
             } else {
                 showLogin();
             }
+
+            document.getElementById('view-products-btn').addEventListener('click', () => {
+                const userId = localStorage.getItem('userId');
+                if (userId) {
+                    window.location.href = `home_screen.html`;
+                } else {
+                    alert('User not found');
+                }
+            });
+
 
             // Password visibility toggle
             togglePassword.addEventListener('click', function() {
@@ -477,6 +509,7 @@
                     localStorage.setItem('isLoggedIn', 'true');
                     // localStorage.setItem('userData', JSON.stringify(user));
                     // localStorage.setItem('userEmail', user.email);
+                    localStorage.setItem('userId', user.userId);
                     localStorage.setItem('userEmail', user.userEmail);
                     showProfile();
                     showToast('Login successful! Welcome back.');
@@ -664,15 +697,15 @@
 
             
             function updateProfileDisplay() {
-                const userEmail = localStorage.getItem('userEmail');
+                const userId = localStorage.getItem('userId');
 
-                if (!userEmail) {
-                    console.error('User email not found in localStorage.');
+                if (!userId) {
+                    console.error('User ID not found in localStorage.');
                     showToast('Please log in first.');
                     return;
                 }
 
-                fetch(`${API_BASE_URL}/api/user?email=${encodeURIComponent(userEmail)}`)
+                fetch(`${API_BASE_URL}/api/user?id=${encodeURIComponent(userId)}`)
                     .then(res => {
                         if (!res.ok) {
                             throw new Error('Failed to fetch user data');
@@ -693,7 +726,7 @@
                     });
             }
 
-
+            // Show edit form
             function showEditForm() {
                 const userEmail = localStorage.getItem('userEmail');
                 if (!userEmail) {
