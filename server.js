@@ -15,15 +15,6 @@ const db = new sqlite3.Database('./users.db', (err) => {
   else console.log('✅ Connected to SQLite DB');
 });
 
-// Create users table if it doesn't exist
-db.run(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    password TEXT
-  )
-`);
-
 // Session middleware
 app.use(session({
   store: new SQLiteStore,
