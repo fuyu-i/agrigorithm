@@ -31,6 +31,14 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files
 app.use(express.static(path.join(__dirname)));
 
+
+// Logging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.ip} - ${req.method} ${req.url}`);
+  next();
+});
+
+
 // === AUTH ROUTES ===
 
 // Signup route
@@ -76,7 +84,10 @@ app.post('/api/auth/login', (req, res) => {
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
     req.session.userId = user.id;
-    res.json({ message: 'Logged in successfully', userEmail: user.email });
+    res.json({ message: 'Logged in successfully',
+      userEmail: user.email,
+      userId: user.id,
+    });
   });
 });
 
@@ -88,17 +99,16 @@ app.post('/api/auth/logout', (req, res) => {
   });
 });
 
-// Get user profile by email via query string
+// Get user profile by id via query string
 app.get('/api/user', (req, res) => {
-    const email = req.query.email;
-
-    if (!email) {
-        return res.status(400).json({ error: 'Email is required' });
+    const userId = req.query.id;
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
     }
 
     db.get(
-        'SELECT name, email, contact, city, province, region FROM users WHERE email = ?',
-        [email],
+        'SELECT name, email, contact, city, province, region FROM users WHERE id = ?',
+        [userId],
         (err, row) => {
             if (err) {
                 console.error(err);
