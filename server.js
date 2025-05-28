@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname)));
 
 // Logging middleware
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.ip} - ${req.method} ${req.url}`);
+  console.log(`[${new Date().toISOString()}] - ${req.method} ${req.url}`);
   next();
 });
 
@@ -63,7 +63,7 @@ app.post('/api/auth/signup', async (req, res) => {
         return res.status(409).json({ error: 'Email already exists or DB error' });
       }
       req.session.userId = this.lastID;
-      res.json({ message: 'User created successfully', userId: this.lastID, userEmail: email });
+      res.json({ message: 'User created successfully', userId: this.lastID});
     });
   } catch (err) {
     console.error('Server error:', err);
@@ -126,19 +126,19 @@ app.get('/api/user', (req, res) => {
 
 // Update user profile
 app.put('/api/user/update', (req, res) => {
-  const { name, email, contact, city, province, region } = req.body;
+  const { userId, name, email, contact, city, province, region } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required to update profile' });
+  if (!userId) {
+    return res.status(400).json({ error: 'Error' });
   }
 
   const sql = `
     UPDATE users
-    SET name = ?, contact = ?, city = ?, province = ?, region = ?
-    WHERE email = ?
+    SET name = ?, email = ?, contact = ?, city = ?, province = ?, region = ?
+    WHERE id = ?
   `;
 
-  db.run(sql, [name, contact, city, province, region, email], function(err) {
+  db.run(sql, [name, email, contact, city, province, region, userId], function(err) {
     if (err) {
       console.error('DB error:', err);
       return res.status(500).json({ error: 'Failed to update profile' });

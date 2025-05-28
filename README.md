@@ -1,11 +1,5 @@
 # To-Do List
 
-## 🔧 Fixes Needed
-
-- [ ] **"Update User Profile"**
-- [ ] **"Show Edit Form"**
-
-
 ## Features To Implement
 
 - [ ] **Seller Products Page**
