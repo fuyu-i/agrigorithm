@@ -510,7 +510,7 @@
                     // localStorage.setItem('userData', JSON.stringify(user));
                     // localStorage.setItem('userEmail', user.email);
                     localStorage.setItem('userId', user.userId);
-                    localStorage.setItem('userEmail', user.userEmail);
+                    // localStorage.setItem('userEmail', user.userEmail);
                     showProfile();
                     showToast('Login successful! Welcome back.');
                 })
@@ -547,7 +547,7 @@
                 .then(data => {
                     localStorage.setItem('isLoggedIn', 'true');
                     localStorage.setItem('userId', data.userId);
-                    localStorage.setItem('userEmail', data.userEmail); // use data.userEmail returned from backend
+                    // localStorage.setItem('userEmail', data.userEmail); // use data.userEmail returned from backend
                     showToast('Account created! Welcome.');
                     setTimeout(() => {
                         window.location.href = 'login_profile_screen.html';
@@ -593,7 +593,14 @@
                 saveLoading.classList.remove('hidden');
                 saveError.classList.add('hidden');
 
+                const userId = localStorage.getItem('userId');
+                if (!userId) {
+                    showToast('User ID not found. Please log in again.');
+                    return;
+                }
+
                 const updatedUser = {
+                    userId,
                     name: document.getElementById('edit-name').value,
                     email: document.getElementById('edit-email').value,
                     contact: document.getElementById('edit-contact').value,
@@ -612,10 +619,11 @@
                     return res.json();
                 })
                 .then(data => {
-                    // Optionally update localStorage here if you use it for display
+                    // Update stored email if it was changed
+                    // localStorage.setItem('userEmail', updatedUser.email);
                     localStorage.setItem('userData', JSON.stringify(updatedUser));
 
-                    updateProfileDisplay();  // Your existing function to refresh UI with updated info
+                    updateProfileDisplay();
                     hideEditForm();
                     showToast('Profile updated successfully!');
                 })
@@ -728,13 +736,13 @@
 
             // Show edit form
             function showEditForm() {
-                const userEmail = localStorage.getItem('userEmail');
-                if (!userEmail) {
+                const userId = localStorage.getItem('userId');
+                if (!userId) {
                     showToast('No user logged in.');
                     return;
                 }
 
-                fetch(`${API_BASE_URL}/api/user?email=${encodeURIComponent(userEmail)}`)
+                fetch(`${API_BASE_URL}/api/user?id=${encodeURIComponent(userId)}`)
                     .then(res => {
                         if (!res.ok) throw new Error('Failed to load user data');
                         return res.json();
