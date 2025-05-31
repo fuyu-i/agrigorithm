@@ -5,10 +5,12 @@ import string
 import secrets
 import requests
 import time
+import csv
 
-number = int(input())
+number = int(input("Enter the number of users to create: "))
 
 def get_random_words(rel_type, max_words=100):
+    print(f"[INFO] Fetching {max_words} random words...")
     url = f"https://api.datamuse.com/words?rel_{rel_type}=farm&max={max_words}"
     response = requests.get(url)
     return [word_info['word'].capitalize() for word_info in response.json()]
@@ -16,16 +18,18 @@ def get_random_words(rel_type, max_words=100):
 def generate_unique_shop_names(count):
     adjectives = get_random_words('jjb')
     nouns = get_random_words('jja')
+    print(f"[INFO] Generating {count} unique shop names...")
 
     shop_names = set()
     while len(shop_names) < count:
+        print(f"[INFO] Generating shop name {len(shop_names) + 1}/{count}...")
         adj = random.choice(adjectives)
         noun = random.choice(nouns)
         shop_name = f"{adj} {noun}"
         shop_names.add(shop_name)
     return list(shop_names)
 
-shop_names = generate_unique_shop_names(number + 10)
+shop_names = generate_unique_shop_names(number)
 
 def generate_random_password(length):
     characters = string.ascii_letters + string.digits
@@ -65,20 +69,16 @@ def get_random_location():
         }
 
 def generate_n_locations(number):
-    unique_locations = set()
+    print(f"[INFO] Generating {number} random locations...")
     final_locations = []
 
     while len(final_locations) < number:
-        loc = get_random_location()
-        key = (loc["region"], loc["province"], loc["city"])
-        if key not in unique_locations:
-            unique_locations.add(key)
-            final_locations.append(loc)
-        time.sleep(0.2)
+        print(f"[INFO] Generating location {len(final_locations) + 1}/{number}...")
+        final_locations.append(get_random_location())
 
     return final_locations
 
-locations = generate_n_locations(number + 10)
+locations = generate_n_locations(number)
 
 conn = sqlite3.connect("users.db")
 cur = conn.cursor()
@@ -102,8 +102,11 @@ if response.status_code != 200:
     raise Exception("Failed to fetch random users")
 
 users_data = response.json()['results']
+credentials = []
+skipped_count = 0
 
 for i, user in enumerate(users_data):
+    print(f"[INFO] Creating user {i + 1}/{number}...")
     first_name = user['name']['first'].capitalize()
     last_name = user['name']['last'].capitalize()
     full_name = f"{first_name} {last_name}"
@@ -115,11 +118,24 @@ for i, user in enumerate(users_data):
     shop_name = shop_names[i]
 
     cur.execute('''
-    INSERT INTO users (name, email, password, contact, city, province, region, shop_name)
+    INSERT OR IGNORE INTO users (name, email, password, contact, city, province, region, shop_name)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ''', (full_name, email, hashed_password, contact, loc["city"], loc["province"], loc["region"], shop_name))
 
-    print(f"[INFO] Created user: {email} | password: {raw_password}")
+    if cur.rowcount == 1:
+        credentials.append([email, raw_password])
+    else:
+        print(f"[WARNING] User with email {email} already exists, skipping...")
+        skipped_count += 1
 
 conn.commit()
 conn.close()
+
+with open('credentials.csv', 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(['Email', 'Password'])
+    writer.writerows(credentials)
+
+credentialsNumber = len(credentials)
+print(f"[INFO] Created {credentialsNumber} users")
+print(f"[INFO] Skipped {skipped_count} users")
