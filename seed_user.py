@@ -6,6 +6,7 @@ import secrets
 import requests
 import time
 import csv
+import os
 
 number = int(input("Enter the number of users to create: "))
 
@@ -126,9 +127,12 @@ for i, user in enumerate(users_data):
 conn.commit()
 conn.close()
 
-with open('credentials.csv', 'w', newline='') as file:
+file_exists = os.path.exists('credentials.csv')
+
+with open('credentials.csv', 'a', newline='') as file:
     writer = csv.writer(file)
-    writer.writerow(['Email', 'Password'])
+    if not file_exists:
+        writer.writerow(['Email', 'Password'])
     writer.writerows(credentials)
 
 credentialsNumber = len(credentials)
