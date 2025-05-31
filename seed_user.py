@@ -29,8 +29,6 @@ def generate_unique_shop_names(count):
         shop_names.add(shop_name)
     return list(shop_names)
 
-shop_names = generate_unique_shop_names(number)
-
 def generate_random_password(length):
     characters = string.ascii_letters + string.digits
     return ''.join(secrets.choice(characters) for _ in range(length))
@@ -78,8 +76,6 @@ def generate_n_locations(number):
 
     return final_locations
 
-locations = generate_n_locations(number)
-
 conn = sqlite3.connect("users.db")
 cur = conn.cursor()
 
@@ -97,10 +93,9 @@ CREATE TABLE IF NOT EXISTS users (
 )
 ''')
 
+shop_names = generate_unique_shop_names(number)
+locations = generate_n_locations(number)
 response = requests.get(f"https://randomuser.me/api/?results={number}&inc=name,email")
-if response.status_code != 200:
-    raise Exception("Failed to fetch random users")
-
 users_data = response.json()['results']
 credentials = []
 skipped_count = 0
