@@ -176,6 +176,156 @@ app.get('/pages/:page', (req, res) => {
   });
 });
 
+
+// === SEARCH ROUTES ===
+// Boyer-Moore Algorithm Implementation (Server-side)
+class BoyerMoore {
+    constructor(pattern) {
+        this.pattern = pattern.toLowerCase();
+        this.badCharTable = this.buildBadCharTable();
+    }
+
+    buildBadCharTable() {
+        const table = {};
+        const pattern = this.pattern;
+        
+        for (let i = 0; i < pattern.length - 1; i++) {
+            table[pattern[i]] = pattern.length - 1 - i;
+        }
+        
+        return table;
+    }
+
+    search(text) {
+        const textLower = text.toLowerCase();
+        const pattern = this.pattern;
+        const textLen = textLower.length;
+        const patternLen = pattern.length;
+        
+        if (patternLen === 0) return [];
+        
+        const matches = [];
+        let skip = 0;
+        
+        while (skip <= textLen - patternLen) {
+            let j = patternLen - 1;
+            
+            while (j >= 0 && pattern[j] === textLower[skip + j]) {
+                j--;
+            }
+            
+            if (j < 0) {
+                matches.push(skip);
+                skip += patternLen;
+            } else {
+                const badChar = textLower[skip + j];
+                skip += Math.max(1, this.badCharTable[badChar] || patternLen);
+            }
+        }
+        
+        return matches;
+    }
+}
+
+
+// Search API endpoint
+app.get('/api/search', (req, res) => {
+    const query = req.query.q;
+    
+    if (!query || query.trim() === '') {
+        return res.json({ products: [], producers: [] });
+    }
+
+    // Get products from database
+    const productSql = `
+        SELECT p.id, p.name, p.price, p.category, p.subcategory, p.variety,
+               u.name as seller_name, u.shop_name, u.city, u.province, u.region
+        FROM products p
+        LEFT JOIN users u ON p.user_id = u.id
+    `;
+
+    // Get producers (users with products)
+    const producersSql = `
+        SELECT u.id, u.name, u.shop_name, u.city, u.province, u.region, COUNT(p.id) as product_count
+        FROM users u
+        INNER JOIN products p ON u.id = p.user_id
+        GROUP BY u.id, u.name, u.shop_name, u.city, u.province, u.region
+    `;
+
+    Promise.all([
+        new Promise((resolve, reject) => {
+            db.all(productSql, [], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.all(producersSql, [], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        })
+    ])
+    .then(([products, producers]) => {
+        const boyerMoore = new BoyerMoore(query);
+        const results = {
+            products: [],
+            producers: []
+        };
+
+        // Search products using Boyer-Moore
+        products.forEach(product => {
+            const searchText = `${product.name} ${product.seller_name || ''} ${product.shop_name || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.city || ''} ${product.province || ''} ${product.region || ''}`.toLowerCase();
+            const matches = boyerMoore.search(searchText);
+            
+            if (matches.length > 0) {
+                // Prioritize exact matches in product name
+                const nameMatches = boyerMoore.search(product.name.toLowerCase());
+                product.priority = nameMatches.length > 0 ? 1 : 2;
+                results.products.push({
+                    id: product.id,
+                    name: product.name,
+                    seller: product.shop_name || product.seller_name || 'Unknown Seller',
+                    region: product.region || 'Unknown Region',
+                    category: product.category || 'Uncategorized',
+                    price: product.price,
+                    subcategory: product.subcategory,
+                    variety: product.variety,
+                    city: product.city,
+                    province: product.province
+                });
+            }
+        });
+
+        // Search producers using Boyer-Moore
+        producers.forEach(producer => {
+            const searchText = `${producer.name} ${producer.shop_name || ''} ${producer.city || ''} ${producer.province || ''} ${producer.region || ''}`.toLowerCase();
+            const matches = boyerMoore.search(searchText);
+            
+            if (matches.length > 0) {
+                results.producers.push({
+                    id: producer.id,
+                    name: producer.shop_name || producer.name,
+                    region: producer.region || 'Unknown Region',
+                    productCount: producer.product_count,
+                    city: producer.city,
+                    province: producer.province
+                });
+            }
+        });
+
+        // Sort products by priority (exact matches first)
+        results.products.sort((a, b) => a.priority - b.priority);
+
+        res.json(results);
+    })
+    .catch(err => {
+        console.error('Database error:', err);
+        res.status(500).json({ error: 'Search failed' });
+    });
+});
+
+
 // 404 fallback
 app.use((req, res) => {
   res.status(404).send('Not Found');

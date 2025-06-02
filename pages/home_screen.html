@@ -409,76 +409,6 @@
     </footer>
 
     <script>
-        // Boyer-Moore Algorithm Implementation for Search
-        class BoyerMoore {
-            constructor(pattern) {
-                this.pattern = pattern.toLowerCase();
-                this.badCharTable = this.buildBadCharTable();
-            }
-
-            buildBadCharTable() {
-                const table = {};
-                const pattern = this.pattern;
-                
-                for (let i = 0; i < pattern.length - 1; i++) {
-                    table[pattern[i]] = pattern.length - 1 - i;
-                }
-                
-                return table;
-            }
-
-            search(text) {
-                const textLower = text.toLowerCase();
-                const pattern = this.pattern;
-                const textLen = textLower.length;
-                const patternLen = pattern.length;
-                
-                if (patternLen === 0) return [];
-                
-                const matches = [];
-                let skip = 0;
-                
-                while (skip <= textLen - patternLen) {
-                    let j = patternLen - 1;
-                    
-                    while (j >= 0 && pattern[j] === textLower[skip + j]) {
-                        j--;
-                    }
-                    
-                    if (j < 0) {
-                        matches.push(skip);
-                        skip += patternLen;
-                    } else {
-                        const badChar = textLower[skip + j];
-                        skip += Math.max(1, this.badCharTable[badChar] || patternLen);
-                    }
-                }
-                
-                return matches;
-            }
-        }
-
-        // Mock data for search
-        const mockData = {
-            products: [
-                { id: 1, name: 'Fresh Organic Tomatoes', seller: 'Green Fields Farm', region: 'California', category: 'Vegetables', price: 4.99 },
-                { id: 2, name: 'Fresh Lettuce', seller: 'Sunny Acres Farm', region: 'Texas', category: 'Vegetables', price: 2.99 },
-                { id: 3, name: 'Bell Peppers', seller: 'Valley Harvest Co.', region: 'Oregon', category: 'Vegetables', price: 3.49 },
-                { id: 4, name: 'Fresh Carrots', seller: 'Mountain Organic', region: 'Colorado', category: 'Vegetables', price: 1.99 },
-                { id: 5, name: 'Organic Apples', seller: 'Green Fields Farm', region: 'California', category: 'Fruits', price: 5.99 },
-                { id: 6, name: 'Sweet Corn', seller: 'Sunny Acres Farm', region: 'Texas', category: 'Vegetables', price: 3.99 },
-                { id: 7, name: 'Organic Strawberries', seller: 'Valley Harvest Co.', region: 'Oregon', category: 'Fruits', price: 7.99 },
-                { id: 8, name: 'Fresh Spinach', seller: 'Mountain Organic', region: 'Colorado', category: 'Vegetables', price: 2.49 }
-            ],
-            producers: [
-                { id: 1, name: 'Green Fields Farm', region: 'California', productCount: 24 },
-                { id: 2, name: 'Sunny Acres Farm', region: 'Texas', productCount: 18 },
-                { id: 3, name: 'Valley Harvest Co.', region: 'Oregon', productCount: 31 },
-                { id: 4, name: 'Mountain Organic', region: 'Colorado', productCount: 15 }
-            ]
-        };
-
-        // Search functionality
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('search-input');
             const searchResults = document.getElementById('search-results');
@@ -486,7 +416,7 @@
             const searchLoading = document.getElementById('search-loading');
             let searchTimeout;
 
-            function performSearch(query) {
+            async function performSearch(query) {
                 if (!query.trim()) {
                     searchResults.classList.add('hidden');
                     return;
@@ -494,43 +424,23 @@
 
                 searchLoading.classList.remove('hidden');
                 
-                // Simulate API delay
-                setTimeout(() => {
-                    const boyerMoore = new BoyerMoore(query);
-                    const results = {
-                        products: [],
-                        producers: []
-                    };
-
-                    // Search products with exact matches prioritized
-                    mockData.products.forEach(product => {
-                        const searchText = `${product.name} ${product.seller} ${product.region} ${product.category}`;
-                        const matches = boyerMoore.search(searchText);
-                        
-                        if (matches.length > 0) {
-                            // Prioritize exact matches in product name
-                            const nameMatches = boyerMoore.search(product.name);
-                            product.priority = nameMatches.length > 0 ? 1 : 2;
-                            results.products.push(product);
-                        }
-                    });
-
-                    // Search producers
-                    mockData.producers.forEach(producer => {
-                        const searchText = `${producer.name} ${producer.region}`;
-                        const matches = boyerMoore.search(searchText);
-                        
-                        if (matches.length > 0) {
-                            results.producers.push(producer);
-                        }
-                    });
-
-                    // Sort products by priority (exact matches first)
-                    results.products.sort((a, b) => a.priority - b.priority);
-
+                try {
+                    // Call your Node.js API endpoint
+                    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Search request failed');
+                    }
+                    
+                    const results = await response.json();
                     displaySearchResults(results, query);
+                    
+                } catch (error) {
+                    console.error('Search error:', error);
+                    displaySearchError();
+                } finally {
                     searchLoading.classList.add('hidden');
-                }, 300);
+                }
             }
 
             function displaySearchResults(results, query) {
@@ -550,7 +460,7 @@
                         html += '<div class="mb-4"><h3 class="font-semibold text-text-primary mb-2">Products</h3>';
                         results.products.slice(0, 5).forEach(product => {
                             html += `
-                                <a href="product_detail_screen.html" class="block p-3 hover:bg-surface rounded-lg transition-colors duration-200">
+                                <a href="product_detail_screen.html?id=${product.id}" class="block p-3 hover:bg-surface rounded-lg transition-colors duration-200">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-10 h-10 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center">
                                             <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -559,7 +469,13 @@
                                         </div>
                                         <div class="flex-1">
                                             <p class="font-medium text-text-primary">${product.name}</p>
-                                            <p class="text-sm text-text-secondary">${product.seller} • $${product.price}</p>
+                                            <div class="text-sm text-text-secondary">
+                                                <span>${product.seller}</span>
+                                                ${product.region ? ` • ${product.region}` : ''}
+                                                ${product.subcategory ? ` • ${product.subcategory}` : ''}
+                                                ${product.variety ? ` • ${product.variety}` : ''}
+                                                <span> • ${product.price}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </a>
@@ -572,7 +488,7 @@
                         html += '<div><h3 class="font-semibold text-text-primary mb-2">Producers</h3>';
                         results.producers.slice(0, 3).forEach(producer => {
                             html += `
-                                <a href="products_listing_screen.html" class="block p-3 hover:bg-surface rounded-lg transition-colors duration-200">
+                                <a href="products_listing_screen.html?producer_id=${producer.id}" class="block p-3 hover:bg-surface rounded-lg transition-colors duration-200">
                                     <div class="flex items-center space-x-3">
                                         <div class="w-10 h-10 bg-success bg-opacity-10 rounded-lg flex items-center justify-center">
                                             <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -581,7 +497,7 @@
                                         </div>
                                         <div class="flex-1">
                                             <p class="font-medium text-text-primary">${producer.name}</p>
-                                            <p class="text-sm text-text-secondary">${producer.region} • ${producer.productCount} products</p>
+                                            <p class="text-sm text-text-secondary">${producer.region ? producer.region + ' • ' : ''}${producer.productCount} products</p>
                                         </div>
                                     </div>
                                 </a>
@@ -591,6 +507,19 @@
                     }
                 }
 
+                searchContent.innerHTML = html;
+                searchResults.classList.remove('hidden');
+            }
+
+            function displaySearchError() {
+                const html = `
+                    <div class="text-center py-8">
+                        <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-text-secondary">Search failed. Please try again.</p>
+                    </div>
+                `;
                 searchContent.innerHTML = html;
                 searchResults.classList.remove('hidden');
             }
