@@ -238,7 +238,7 @@ app.get('/api/search', (req, res) => {
 
     // Get products from database
     const productSql = `
-        SELECT p.id, p.name, p.price, p.category, p.subcategory, p.variety,
+        SELECT p.id, p.name, p.price, p.category, p.subcategory, p.variety, p.image_url,
                u.name as seller_name, u.shop_name, u.city, u.province, u.region
         FROM products p
         LEFT JOIN users u ON p.user_id = u.id
@@ -292,7 +292,8 @@ app.get('/api/search', (req, res) => {
                     subcategory: product.subcategory,
                     variety: product.variety,
                     city: product.city,
-                    province: product.province
+                    province: product.province,
+                    image_url: product.image_url
                 });
             }
         });
