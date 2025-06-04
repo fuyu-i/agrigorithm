@@ -16,6 +16,9 @@ Any **other features**, **security best practices**, or **vulnerabilities** are 
 
 # 📝 To-Do List
 
+## Fix
+- Include description when searching
+
 ## ✅ Features To Implement
 
 - [ ] **Seller Products Page**
