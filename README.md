@@ -24,8 +24,6 @@ Any **other features**, **security best practices**, or **vulnerabilities** are 
 - [ ] **Seller Products Page**
   - List all products uploaded by the current user
   - Option to edit the shop name
-  
-- [ ] **Product Model & Table**
 
 - [ ] **Add New Product Form**
   - Allow logged-in users to list new products
