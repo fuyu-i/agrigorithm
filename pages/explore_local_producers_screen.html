@@ -33,7 +33,7 @@
                     </a>
                     
                     <!-- Search Bar -->
-                    <div class="relative max-w-md w-full">
+                    <!-- <div class="relative max-w-md w-full">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-4 w-4 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -45,7 +45,7 @@
                             placeholder="Search producers..." 
                             class="block w-full pl-10 pr-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 text-sm"
                         >
-                    </div>
+                    </div> -->
                 </div>
 
                 <!-- Profile Button -->
@@ -67,6 +67,30 @@
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-text-primary mb-2">Explore Local Producers</h1>
             <p class="text-text-secondary">Discover talented farmers and producers in your region</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative max-w-2xl mx-auto">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <input 
+                id="search-producers" 
+                type="text" 
+                placeholder="Search producers..." 
+                class="block w-full pl-10 pr-12 py-3 border border-border rounded-lg bg-white placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                autocomplete="off"
+            >
+            <button 
+                id="clear-search-producers" 
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-tertiary hover:text-text-secondary transition-colors duration-200 hidden"
+                aria-label="Clear search">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
         </div>
 
         <!-- Filter Section -->
@@ -430,6 +454,9 @@
         const resetFiltersBtn = document.getElementById('reset-filters');
         const retryBtn = document.getElementById('retry-btn');
 
+        // clear search button
+        const clearSearchBtn = document.getElementById('clear-search');
+
         // Initialize page
         function initializePage() {
             currentProducers = [...mockProducers];
@@ -441,6 +468,24 @@
                 renderProducers();
             }, 1000);
         }
+
+        // Debounce function for search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Debounced search function
+        const debouncedSearch = debounce(() => {
+            applyFilters();
+        }, 300);
 
         // Apply filters
         function applyFilters() {
@@ -475,32 +520,41 @@
 
         // Update applied filters display
         function updateAppliedFilters() {
+            const searchTerm = searchInput.value.trim();
+            const selectedRegion = regionFilter.value;
+            
             const filters = [];
             
-            if (regionFilter.value) {
+            if (searchTerm) {
+                filters.push({ 
+                    type: 'search', 
+                    value: searchTerm, 
+                    label: `Search: "${searchTerm}"` 
+                });
+            }
+            
+            if (selectedRegion) {
                 filters.push({
                     type: 'region',
-                    value: regionFilter.value,
-                    label: regionFilter.options[regionFilter.selectedIndex].text
+                    value: selectedRegion,
+                    label: `Region: ${regionFilter.options[regionFilter.selectedIndex].text}`
                 });
             }
 
             if (filters.length > 0) {
                 appliedFilters.classList.remove('hidden');
-                const filtersHTML = filters.map(filter => `
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary bg-opacity-10 text-primary">
-                        ${filter.label}
-                        <button onclick="removeFilter('${filter.type}')" class="ml-2 hover:text-primary-dark" aria-label="Remove ${filter.label} filter">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </span>
-                `).join('');
-                
                 appliedFilters.innerHTML = `
-                    <span class="text-sm font-medium text-text-secondary">Selected regions:</span>
-                    ${filtersHTML}
+                    <span class="text-sm font-medium text-text-secondary">Applied filters:</span>
+                    ${filters.map(filter => `
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary bg-opacity-10 text-primary">
+                            ${filter.label}
+                            <button onclick="removeFilter('${filter.type}')" class="ml-2 hover:text-primary-dark" aria-label="Remove ${filter.label} filter">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </span>
+                    `).join('')}
                 `;
             } else {
                 appliedFilters.classList.add('hidden');
@@ -509,16 +563,41 @@
 
         // Remove specific filter
         function removeFilter(filterType) {
-            if (filterType === 'region') {
-                regionFilter.value = '';
+            switch (filterType) {
+                case 'search':
+                    searchInput.value = '';
+                    toggleClearSearch();
+                    break;
+                case 'region':
+                    regionFilter.value = '';
+                    break;
             }
             applyFilters();
         }
 
         // Clear all filters
         function clearAllFilters() {
-            regionFilter.value = '';
             searchInput.value = '';
+            regionFilter.value = '';
+            toggleClearSearch();
+            applyFilters();
+        }
+
+        // Toggle clear search button visibility
+        function toggleClearSearch() {
+            if (clearSearchBtn) {
+                if (searchInput.value.trim()) {
+                    clearSearchBtn.classList.remove('hidden');
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                }
+            }
+        }
+
+        // Clear search specifically
+        function clearSearch() {
+            searchInput.value = '';
+            toggleClearSearch();
             applyFilters();
         }
 
@@ -616,16 +695,32 @@
                 initializePage();
             });
 
-            // Search with debounce
-            let searchTimeout;
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(applyFilters, 300);
+            // Search event listeners
+            searchInput.addEventListener('input', () => {
+                toggleClearSearch();
+                debouncedSearch();
             });
+
+            // Clear search button event listener
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', clearSearch);
+            }
+
+            // Search on Enter key
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyFilters();
+                }
+            });
+
+            // Initialize clear search button state
+            toggleClearSearch();
         });
 
-        // Make removeFilter function global
+        // Make functions global for onclick handlers
         window.removeFilter = removeFilter;
+        window.clearSearch = clearSearch;
     </script>
 
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
