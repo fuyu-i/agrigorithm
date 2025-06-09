@@ -54,6 +54,32 @@
             <p class="text-text-secondary">Discover fresh, quality agricultural products from local farmers</p>
         </div>
 
+        <!-- Search Bar -->
+        <div class="mb-6">
+            <div class="relative max-w-2xl mx-auto">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input 
+                    type="text" 
+                    id="search-input"
+                    class="block w-full pl-10 pr-12 py-3 border border-border rounded-lg bg-white placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                    placeholder="Search for products, sellers, or tags..."
+                    autocomplete="off"
+                >
+                <button 
+                    id="clear-search" 
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-tertiary hover:text-text-secondary transition-colors duration-200 hidden"
+                    aria-label="Clear search">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
         <!-- Filters and Sort Section -->
         <div class="bg-surface-raised rounded-lg border border-border p-6 mb-8">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-6">
@@ -125,6 +151,7 @@
                             <option value="newest">Newest First</option>
                             <option value="price-low">Price (Low-High)</option>
                             <option value="price-high">Price (High-Low)</option>
+                            <option value="relevance">Most Relevant</option>
                         </select>
                         <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -202,8 +229,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
                 <h2 class="text-xl font-semibold text-text-primary mb-2">No products found</h2>
-                <p class="text-text-secondary mb-6">Try adjusting your filters or search criteria to find what you're looking for.</p>
-                <button id="reset-filters" class="btn-primary">Reset Filters</button>
+                <p class="text-text-secondary mb-6">Try adjusting your search terms or filters to find what you're looking for.</p>
+                <button id="reset-search" class="btn-primary">Reset Search & Filters</button>
             </div>
         </div>
 
@@ -368,12 +395,37 @@
                 category: "grains",
                 tags: ["sweet", "fresh", "local"],
                 dateAdded: new Date('2025-01-08')
+            },
+            {
+                id: 9,
+                name: "Juicy Oranges",
+                price: 2.99,
+                unit: "lb",
+                image: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
+                seller: "Citrus Grove Farm",
+                region: "florida",
+                category: "fruits",
+                tags: ["juicy", "vitamin-c", "fresh"],
+                dateAdded: new Date('2025-01-07')
+            },
+            {
+                id: 10,
+                name: "Fresh Basil",
+                price: 1.99,
+                unit: "bunch",
+                image: "https://images.unsplash.com/photo-1618375569909-3c8616cf32ec?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
+                seller: "Herb Haven",
+                region: "california",
+                category: "herbs",
+                tags: ["aromatic", "fresh", "organic"],
+                dateAdded: new Date('2025-01-06')
             }
         ];
 
         let currentProducts = [];
         let filteredProducts = [];
         let currentPage = 1;
+        let currentSearchTerm = '';
         const itemsPerPage = 20;
 
         // DOM elements
@@ -388,13 +440,86 @@
         const loadingIndicator = document.getElementById('loading-indicator');
         const appliedFilters = document.getElementById('applied-filters');
 
+        // Search elements
+        const searchInput = document.getElementById('search-input');
+        const clearSearchBtn = document.getElementById('clear-search');
+
         // Filter elements
         const regionFilter = document.getElementById('region-filter');
         const categoryFilter = document.getElementById('category-filter');
         const tagsFilter = document.getElementById('tags-filter');
         const sortSelect = document.getElementById('sort-select');
         const clearFiltersBtn = document.getElementById('clear-filters');
-        const resetFiltersBtn = document.getElementById('reset-filters');
+        const resetSearchBtn = document.getElementById('reset-search');
+
+        // Search functionality
+        function performSearch(searchTerm) {
+            if (!searchTerm.trim()) {
+                return [...mockProducts];
+            }
+
+            const term = searchTerm.toLowerCase().trim();
+            return mockProducts.filter(product => {
+                // Search in product name
+                const nameMatch = product.name.toLowerCase().includes(term);
+                
+                // Search in seller name
+                const sellerMatch = product.seller.toLowerCase().includes(term);
+                
+                // Search in tags
+                const tagMatch = product.tags.some(tag => tag.toLowerCase().includes(term));
+                
+                // Search in category
+                const categoryMatch = product.category.toLowerCase().includes(term);
+
+                return nameMatch || sellerMatch || tagMatch || categoryMatch;
+            }).map(product => ({
+                ...product,
+                relevanceScore: calculateRelevanceScore(product, term)
+            }));
+        }
+
+        function calculateRelevanceScore(product, searchTerm) {
+            let score = 0;
+            const term = searchTerm.toLowerCase();
+
+            // Exact name match gets highest score
+            if (product.name.toLowerCase() === term) score += 100;
+            else if (product.name.toLowerCase().startsWith(term)) score += 50;
+            else if (product.name.toLowerCase().includes(term)) score += 25;
+
+            // Seller name match
+            if (product.seller.toLowerCase().includes(term)) score += 15;
+
+            // Tag matches
+            product.tags.forEach(tag => {
+                if (tag.toLowerCase() === term) score += 20;
+                else if (tag.toLowerCase().includes(term)) score += 10;
+            });
+
+            // Category match
+            if (product.category.toLowerCase().includes(term)) score += 10;
+
+            return score;
+        }
+
+        // Debounce function for search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Debounced search function
+        const debouncedSearch = debounce(() => {
+            applyFiltersAndSort();
+        }, 300);
 
         // Merge Sort Implementation
         function mergeSort(arr, compareFunction) {
@@ -408,7 +533,7 @@
         }
 
         function merge(left, right, compareFunction) {
-            const result = [];
+            let result = [];
             let leftIndex = 0;
             let rightIndex = 0;
 
@@ -425,108 +550,101 @@
             return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
         }
 
-        // Sort functions
-        const sortFunctions = {
-            'newest': (a, b) => b.dateAdded - a.dateAdded,
-            'price-low': (a, b) => a.price - b.price,
-            'price-high': (a, b) => b.price - a.price
-        };
-
-        // Initialize page
-        function initializePage() {
-            currentProducts = [...mockProducts];
-            applyFiltersAndSort();
-            
-            // Hide loading skeleton and show content
-            setTimeout(() => {
-                loadingSkeleton.classList.add('hidden');
-                renderProducts();
-            }, 1000);
+        // Sorting functions
+        function getSortFunction(sortType) {
+            switch (sortType) {
+                case 'price-low':
+                    return (a, b) => a.price - b.price;
+                case 'price-high':
+                    return (a, b) => b.price - a.price;
+                case 'newest':
+                    return (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded);
+                case 'relevance':
+                    return (a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0);
+                default:
+                    return (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded);
+            }
         }
 
-        // Apply filters and sorting
+        // Apply filters and sort
         function applyFiltersAndSort() {
-            showLoadingIndicator();
+            showLoadingIndicator(true);
+            
+            // Get current filter values
+            const searchTerm = searchInput.value.trim();
+            const selectedRegion = regionFilter.value;
+            const selectedCategory = categoryFilter.value;
+            const selectedTag = tagsFilter.value;
+            const sortType = sortSelect.value;
+
+            // Start with search results or all products
+            let products = searchTerm ? performSearch(searchTerm) : [...mockProducts];
+
+            // Apply region filter
+            if (selectedRegion) {
+                products = products.filter(product => product.region === selectedRegion);
+            }
+
+            // Apply category filter
+            if (selectedCategory) {
+                products = products.filter(product => product.category === selectedCategory);
+            }
+
+            // Apply tags filter
+            if (selectedTag) {
+                products = products.filter(product => product.tags.includes(selectedTag));
+            }
+
+            // Sort products using merge sort
+            const sortFunction = getSortFunction(sortType);
+            products = mergeSort(products, sortFunction);
+
+            // Update filtered products and reset pagination
+            filteredProducts = products;
+            currentPage = 1;
+            currentSearchTerm = searchTerm;
+
+            // Update applied filters display
+            updateAppliedFilters();
+
+            // Show results
+            displayProducts();
+            updateResultsCount();
             
             setTimeout(() => {
-                let filtered = [...mockProducts];
-
-                // Apply filters
-                const region = regionFilter.value;
-                const category = categoryFilter.value;
-                const tags = tagsFilter.value;
-
-                if (region) {
-                    filtered = filtered.filter(product => product.region === region);
-                }
-
-                if (category) {
-                    filtered = filtered.filter(product => product.category === category);
-                }
-
-                if (tags) {
-                    filtered = filtered.filter(product => product.tags.includes(tags));
-                }
-
-                // Apply sorting using merge sort
-                const sortType = sortSelect.value;
-                if (sortFunctions[sortType]) {
-                    filtered = mergeSort(filtered, sortFunctions[sortType]);
-                }
-
-                filteredProducts = filtered;
-                currentPage = 1;
-                updateAppliedFilters();
-                renderProducts();
-                hideLoadingIndicator();
+                showLoadingIndicator(false);
             }, 500);
         }
 
         // Update applied filters display
         function updateAppliedFilters() {
+            const searchTerm = searchInput.value.trim();
+            const selectedRegion = regionFilter.value;
+            const selectedCategory = categoryFilter.value;
+            const selectedTag = tagsFilter.value;
+
             const filters = [];
             
-            if (regionFilter.value) {
-                filters.push({
-                    type: 'region',
-                    value: regionFilter.value,
-                    label: regionFilter.options[regionFilter.selectedIndex].text
-                });
-            }
-            
-            if (categoryFilter.value) {
-                filters.push({
-                    type: 'category',
-                    value: categoryFilter.value,
-                    label: categoryFilter.options[categoryFilter.selectedIndex].text
-                });
-            }
-            
-            if (tagsFilter.value) {
-                filters.push({
-                    type: 'tags',
-                    value: tagsFilter.value,
-                    label: tagsFilter.options[tagsFilter.selectedIndex].text
-                });
-            }
+            if (searchTerm) filters.push({ type: 'search', value: searchTerm, label: `Search: "${searchTerm}"` });
+            if (selectedRegion) filters.push({ type: 'region', value: selectedRegion, label: `Region: ${selectedRegion}` });
+            if (selectedCategory) filters.push({ type: 'category', value: selectedCategory, label: `Category: ${selectedCategory}` });
+            if (selectedTag) filters.push({ type: 'tag', value: selectedTag, label: `Tag: ${selectedTag}` });
 
             if (filters.length > 0) {
-                appliedFilters.classList.remove('hidden');
-                const filtersHTML = filters.map(filter => `
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary bg-opacity-10 text-primary">
-                        ${filter.label}
-                        <button onclick="removeFilter('${filter.type}')" class="ml-2 hover:text-primary-dark" aria-label="Remove ${filter.label} filter">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </span>
-                `).join('');
-                
                 appliedFilters.innerHTML = `
                     <span class="text-sm font-medium text-text-secondary">Applied filters:</span>
-                    ${filtersHTML}
+                    ${filters.map(filter => `
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                            ${filter.label}
+                            <button onclick="removeFilter('${filter.type}')" class="ml-2 hover:text-primary/80">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </span>
+                    `).join('')}
                 `;
+                appliedFilters.classList.remove('hidden');
             } else {
                 appliedFilters.classList.add('hidden');
             }
@@ -534,132 +652,286 @@
 
         // Remove specific filter
         function removeFilter(filterType) {
-            switch(filterType) {
+            switch (filterType) {
+                case 'search':
+                    searchInput.value = '';
+                    toggleClearSearch();
+                    break;
                 case 'region':
                     regionFilter.value = '';
                     break;
                 case 'category':
                     categoryFilter.value = '';
                     break;
-                case 'tags':
+                case 'tag':
                     tagsFilter.value = '';
                     break;
             }
             applyFiltersAndSort();
         }
 
-        // Clear all filters
-        function clearAllFilters() {
-            regionFilter.value = '';
-            categoryFilter.value = '';
-            tagsFilter.value = '';
-            sortSelect.value = 'newest';
-            applyFiltersAndSort();
-        }
-
-        // Render products
-        function renderProducts() {
+        // Display products
+        function displayProducts() {
             const startIndex = 0;
             const endIndex = currentPage * itemsPerPage;
             const productsToShow = filteredProducts.slice(startIndex, endIndex);
 
-            if (filteredProducts.length === 0) {
-                productsGrid.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                loadMoreContainer.classList.add('hidden');
-                resultsCount.textContent = 'No products found';
+            if (productsToShow.length === 0) {
+                showEmptyState();
                 return;
             }
 
-            productsGrid.classList.remove('hidden');
-            emptyState.classList.add('hidden');
-            
-            productsGrid.innerHTML = productsToShow.map(product => `
-                <div class="bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                    <a href="product_detail_screen.html" class="block">
-                        <div class="aspect-square overflow-hidden">
-                            <img src="${product.image}" 
-                                 alt="${product.name}" 
-                                 class="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+            hideEmptyState();
+            hideLoadingSkeleton();
+
+            productsGrid.innerHTML = productsToShow.map(product => createProductCard(product)).join('');
+
+            // Update load more button visibility
+            updateLoadMoreButton();
+        }
+
+        // Create product card HTML
+        function createProductCard(product) {
+            return `
+                <div class="bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group">
+                    <div class="relative overflow-hidden">
+                        <img 
+                            src="${product.image}" 
+                            alt="${product.name}"
+                            class="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                        >
+                        <div class="absolute top-3 left-3">
+                            ${product.tags.slice(0, 2).map(tag => `
+                                <span class="inline-block px-2 py-1 text-xs font-medium bg-white/90 text-text-primary rounded-full mb-1 mr-1">
+                                    ${tag}
+                                </span>
+                            `).join('')}
                         </div>
-                        <div class="p-4">
-                            <h3 class="font-semibold text-text-primary mb-1 line-clamp-2">${product.name}</h3>
-                            <p class="text-text-secondary text-sm mb-2">${product.seller}</p>
-                            <div class="flex items-center justify-between">
-                                <span class="font-bold text-primary">$${product.price.toFixed(2)}/${product.unit}</span>
-                                <div class="flex space-x-1">
-                                    ${product.tags.slice(0, 2).map(tag => `
-                                        <span class="bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-full text-xs">${tag}</span>
-                                    `).join('')}
-                                </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="p-2 bg-white/90 rounded-full hover:bg-white transition-colors duration-200" aria-label="Add to favorites">
+                                <svg class="w-4 h-4 text-text-secondary hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <h3 class="font-semibold text-text-primary mb-2 line-clamp-2">${product.name}</h3>
+                        <p class="text-sm text-text-secondary mb-3">${product.seller}</p>
+                        
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg font-bold text-primary">$${product.price.toFixed(2)}</span>
+                                <span class="text-sm text-text-secondary">/${product.unit}</span>
                             </div>
+                            <span class="text-xs text-text-tertiary capitalize">${product.region}</span>
                         </div>
-                    </a>
+                        
+                        <div class="flex space-x-2">
+                            <button 
+                                onclick="addToCart(${product.id})"
+                                class="flex-1 btn-primary text-sm py-2"
+                            >
+                                Add to Cart
+                            </button>
+                            <button 
+                                onclick="viewProduct(${product.id})"
+                                class="btn-outline text-sm py-2 px-3"
+                                aria-label="View product details"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            `).join('');
+            `;
+        }
 
-            // Update results count
-            resultsCount.textContent = `Showing ${Math.min(endIndex, filteredProducts.length)} of ${filteredProducts.length} products`;
-
-            // Show/hide load more button
-            if (endIndex >= filteredProducts.length) {
-                loadMoreContainer.classList.add('hidden');
-            } else {
-                loadMoreContainer.classList.remove('hidden');
+        // Product actions
+        function addToCart(productId) {
+            const product = mockProducts.find(p => p.id === productId);
+            if (product) {
+                // Get current cart count
+                const cartCountElement = document.getElementById('cart-count');
+                let currentCount = parseInt(cartCountElement.textContent) || 0;
+                
+                // Update cart count
+                cartCountElement.textContent = currentCount + 1;
+                
+                // Show feedback
+                showNotification(`${product.name} added to cart!`, 'success');
             }
         }
 
-        // Load more products
-        function loadMoreProducts() {
-            loadMoreText.textContent = 'Loading...';
-            loadMoreLoading.classList.remove('hidden');
-            loadMoreBtn.disabled = true;
+        function viewProduct(productId) {
+            // Navigate to product details page
+            window.location.href = `product_details.html?id=${productId}`;
+        }
 
+        // Utility functions
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
+                type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 
+                type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' : 
+                'bg-blue-100 text-blue-800 border border-blue-200'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
             setTimeout(() => {
-                currentPage++;
-                renderProducts();
-                
-                loadMoreText.textContent = 'Load More Products';
-                loadMoreLoading.classList.add('hidden');
-                loadMoreBtn.disabled = false;
-            }, 1000);
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
         }
 
-        // Show/hide loading indicator
-        function showLoadingIndicator() {
-            loadingIndicator.classList.remove('hidden');
+        function updateResultsCount() {
+            const totalResults = filteredProducts.length;
+            const currentlyShowing = Math.min(currentPage * itemsPerPage, totalResults);
+            
+            if (totalResults === 0) {
+                resultsCount.textContent = "No products found";
+            } else {
+                resultsCount.textContent = `Showing ${currentlyShowing} of ${totalResults} products`;
+            }
         }
 
-        function hideLoadingIndicator() {
-            loadingIndicator.classList.add('hidden');
+        function updateLoadMoreButton() {
+            const totalResults = filteredProducts.length;
+            const currentlyShowing = currentPage * itemsPerPage;
+            
+            if (currentlyShowing >= totalResults) {
+                loadMoreContainer.style.display = 'none';
+            } else {
+                loadMoreContainer.style.display = 'block';
+                const remaining = totalResults - currentlyShowing;
+                loadMoreText.textContent = `Load More Products (${remaining} remaining)`;
+            }
+        }
+
+        function showLoadingIndicator(show) {
+            if (show) {
+                loadingIndicator.classList.remove('hidden');
+            } else {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        function showEmptyState() {
+            emptyState.classList.remove('hidden');
+            productsGrid.classList.add('hidden');
+            loadMoreContainer.style.display = 'none';
+        }
+
+        function hideEmptyState() {
+            emptyState.classList.add('hidden');
+            productsGrid.classList.remove('hidden');
+        }
+
+        function showLoadingSkeleton() {
+            loadingSkeleton.classList.remove('hidden');
+            productsGrid.classList.add('hidden');
+            loadMoreContainer.style.display = 'none';
+        }
+
+        function hideLoadingSkeleton() {
+            loadingSkeleton.classList.add('hidden');
+            productsGrid.classList.remove('hidden');
+        }
+
+        function toggleClearSearch() {
+            if (searchInput.value.trim()) {
+                clearSearchBtn.classList.remove('hidden');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+            }
+        }
+
+        function clearAllFilters() {
+            searchInput.value = '';
+            regionFilter.value = '';
+            categoryFilter.value = '';
+            tagsFilter.value = '';
+            sortSelect.value = 'newest';
+            toggleClearSearch();
+            applyFiltersAndSort();
         }
 
         // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            initializePage();
-
-            // Filter and sort event listeners
-            regionFilter.addEventListener('change', applyFiltersAndSort);
-            categoryFilter.addEventListener('change', applyFiltersAndSort);
-            tagsFilter.addEventListener('change', applyFiltersAndSort);
-            sortSelect.addEventListener('change', applyFiltersAndSort);
-            clearFiltersBtn.addEventListener('click', clearAllFilters);
-            resetFiltersBtn.addEventListener('click', clearAllFilters);
-            loadMoreBtn.addEventListener('click', loadMoreProducts);
-
-            // Infinite scroll
-            window.addEventListener('scroll', () => {
-                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
-                    if (!loadMoreBtn.disabled && !loadMoreContainer.classList.contains('hidden')) {
-                        loadMoreProducts();
-                    }
-                }
-            });
+        searchInput.addEventListener('input', () => {
+            toggleClearSearch();
+            debouncedSearch();
         });
 
-        // Make removeFilter function global
-        window.removeFilter = removeFilter;
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            toggleClearSearch();
+            applyFiltersAndSort();
+        });
+
+        regionFilter.addEventListener('change', applyFiltersAndSort);
+        categoryFilter.addEventListener('change', applyFiltersAndSort);
+        tagsFilter.addEventListener('change', applyFiltersAndSort);
+        sortSelect.addEventListener('change', applyFiltersAndSort);
+
+        clearFiltersBtn.addEventListener('click', clearAllFilters);
+        resetSearchBtn.addEventListener('click', clearAllFilters);
+
+        loadMoreBtn.addEventListener('click', () => {
+            // Show loading state
+            loadMoreLoading.classList.remove('hidden');
+            loadMoreText.textContent = 'Loading...';
+            loadMoreBtn.disabled = true;
+
+            // Simulate loading delay
+            setTimeout(() => {
+                currentPage++;
+                displayProducts();
+                
+                // Reset button state
+                loadMoreLoading.classList.add('hidden');
+                loadMoreBtn.disabled = false;
+            }, 1000);
+        });
+
+        // Search on Enter key
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyFiltersAndSort();
+            }
+        });
+
+        // Initialize the page
+        function initializePage() {
+            showLoadingSkeleton();
+            
+            // Simulate initial loading
+            setTimeout(() => {
+                filteredProducts = [...mockProducts];
+                currentPage = 1;
+                displayProducts();
+                updateResultsCount();
+            }, 1500);
+        }
+
+        document.addEventListener('DOMContentLoaded', initializePage);
+
     </script>
 <script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
 <script id="dhws-elementInspector" src="../public/dhws-web-inspector.js"></script>
