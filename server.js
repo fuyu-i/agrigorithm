@@ -355,6 +355,34 @@ app.get('/api/producers/random', (req, res) => {
 });
 
 
+app.get('/api/products/featured', (req, res) => {
+  const sql = `
+    SELECT 
+      p.id, p.name, p.price, p.image_url, u.shop_name
+    FROM products p
+    JOIN users u ON p.user_id = u.id
+    ORDER BY RANDOM()
+    LIMIT 5
+  `;
+
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching featured products:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    res.json(rows.map(product => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image_url,
+      producer: product.shop_name,
+      unit: 'kg'
+    })));
+  });
+});
+
+
 // 404 fallback
 app.use((req, res) => {
   res.status(404).send('Not Found');
