@@ -354,7 +354,7 @@ app.get('/api/producers/random', (req, res) => {
   });
 });
 
-
+// Get featured products (5 random products)
 app.get('/api/products/featured', (req, res) => {
   const sql = `
     SELECT 
