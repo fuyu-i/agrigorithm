@@ -327,6 +327,34 @@ app.get('/api/search', (req, res) => {
 });
 
 
+// Get 4 random local producers
+app.get('/api/producers/random', (req, res) => {
+  const sql = `
+    SELECT u.id, u.name, u.shop_name, u.city, u.province, u.region, COUNT(p.id) as product_count
+    FROM users u
+    INNER JOIN products p ON u.id = p.user_id
+    GROUP BY u.id
+    ORDER BY RANDOM()
+    LIMIT 4
+  `;
+
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching producers:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(rows.map(producer => ({
+      id: producer.id,
+      name: producer.shop_name || producer.name,
+      city: producer.city,
+      province: producer.province,
+      region: producer.region,
+      productCount: producer.product_count
+    })));
+  });
+});
+
+
 // 404 fallback
 app.use((req, res) => {
   res.status(404).send('Not Found');
