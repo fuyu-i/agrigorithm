@@ -505,6 +505,245 @@ app.get('/api/producers', (req, res) => {
 });
 
 
+// Get all products with optional search, region, category filters and sorting
+app.get('/api/products', (req, res) => {
+  const { search, region, category, sort = 'newest', page = 1, limit = 12 } = req.query;
+  
+  let sql = `
+    SELECT 
+      p.id,
+      p.name,
+      p.description,
+      p.price,
+      p.category,
+      p.subcategory,
+      p.variety,
+      p.image_url,
+      p.created_at as dateAdded,
+      u.shop_name as seller,
+      u.region,
+      u.city,
+      u.province,
+      u.id as seller_id
+    FROM products p
+    INNER JOIN users u ON p.user_id = u.id
+    WHERE u.shop_name IS NOT NULL
+  `;
+
+  const params = [];
+
+  // Add region filter if provided
+  if (region && region.trim() !== '') {
+    sql += ` AND u.region = ?`;
+    params.push(region);
+  }
+
+  // Add category filter if provided
+  if (category && category.trim() !== '') {
+    sql += ` AND p.category = ?`;
+    params.push(category);
+  }
+
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      console.error('Error fetching products:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    const regionMap = {
+      'Ilocos Region': 'Region 1 - Ilocos Region',
+      'Cagayan Valley': 'Region 2 - Cagayan Valley',
+      'Central Luzon': 'Region 3 - Central Luzon',
+      'CALABARZON': 'Region 4A - CALABARZON',
+      'MIMAROPA Region': 'Region 4B - MIMAROPA',
+      'Bicol Region': 'Region 5 - Bicol Region',
+      'Western Visayas': 'Region 6 - Western Visayas',
+      'Central Visayas': 'Region 7 - Central Visayas',
+      'Eastern Visayas': 'Region 8 - Eastern Visayas',
+      'Zamboanga Peninsula': 'Region 9 - Zamboanga Peninsula',
+      'Northern Mindanao': 'Region 10 - Northern Mindanao',
+      'Davao Region': 'Region 11 - Davao Region',
+      'SOCCSKSARGEN': 'Region 12 - SOCCSKSARGEN',
+      'Caraga': 'Region 13 - Caraga',
+      'CAR': 'CAR - Cordillera Administrative Region',
+      'National Capital Region': 'NCR - National Capital Region',
+      'BARMM': 'BARMM - Bangsamoro Autonomous Region in Muslim Mindanao'
+    };
+
+    let products = rows.map(row => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      price: parseFloat(row.price),
+      unit: 'kg', // Default unit
+      category: row.category,
+      subcategory: row.subcategory,
+      variety: row.variety,
+      image: row.image_url || '/images/placeholder-product.jpg',
+      seller: row.seller,
+      sellerId: row.seller_id,
+      region: row.region,
+      city: row.city,
+      province: row.province,
+      regionName: regionMap[row.region] || row.region,
+      dateAdded: row.dateAdded,
+      stockQuantity: 100, // Default stock, no field in DB
+      relevanceScore: 0
+    }));
+
+    // Apply Boyer-Moore search filter if search query is provided
+    if (search && search.trim() !== '') {
+      const boyerMoore = new BoyerMoore(search.trim());
+      const filteredProducts = [];
+
+      products.forEach(product => {
+        // Create search text combining all searchable fields
+        const searchText = `${product.name} ${product.description || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.seller || ''}`.toLowerCase();
+        const matches = boyerMoore.search(searchText);
+
+        if (matches.length > 0) {
+          // Calculate relevance score based on where matches are found
+          let relevanceScore = 0;
+          
+          // Check for matches in product name (highest priority)
+          const nameMatches = boyerMoore.search(product.name.toLowerCase());
+          if (nameMatches.length > 0) {
+            relevanceScore += 100;
+            // Bonus for exact match
+            if (product.name.toLowerCase() === search.trim().toLowerCase()) {
+              relevanceScore += 50;
+            }
+            // Bonus for match at beginning
+            if (nameMatches.includes(0)) {
+              relevanceScore += 25;
+            }
+          }
+
+          // Check for matches in seller name
+          const sellerMatches = boyerMoore.search((product.seller || '').toLowerCase());
+          if (sellerMatches.length > 0) {
+            relevanceScore += 15;
+          }
+
+          // Check for matches in category fields
+          const categoryMatches = boyerMoore.search((product.category || '').toLowerCase());
+          if (categoryMatches.length > 0) {
+            relevanceScore += 10;
+          }
+
+          const subcategoryMatches = boyerMoore.search((product.subcategory || '').toLowerCase());
+          if (subcategoryMatches.length > 0) {
+            relevanceScore += 8;
+          }
+
+          const varietyMatches = boyerMoore.search((product.variety || '').toLowerCase());
+          if (varietyMatches.length > 0) {
+            relevanceScore += 8;
+          }
+
+          // Check for matches in description
+          const descriptionMatches = boyerMoore.search((product.description || '').toLowerCase());
+          if (descriptionMatches.length > 0) {
+            relevanceScore += 5;
+          }
+
+          product.relevanceScore = relevanceScore;
+          product.priority = nameMatches.length > 0 ? 1 : 2;
+          filteredProducts.push(product);
+        }
+      });
+
+      products = filteredProducts;
+
+      // Sort by relevance when searching (unless another sort is specified)
+      if (sort === 'relevance' || sort === 'newest') {
+        products.sort((a, b) => {
+          // Sort by priority (name matches first)
+          if (a.priority !== b.priority) {
+            return a.priority - b.priority;
+          }
+          // Sort by relevance score
+          return b.relevanceScore - a.relevanceScore;
+        });
+      }
+    }
+
+    // Apply other sorting options
+    if (!search) {
+      switch (sort) {
+        case 'price-low':
+          products.sort((a, b) => a.price - b.price);
+          break;
+        case 'price-high':
+          products.sort((a, b) => b.price - a.price);
+          break;
+        case 'name':
+          products.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'newest':
+        default:
+          products.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+          break;
+      }
+    } else if (search && sort !== 'newest' && sort !== 'relevance') {
+      switch (sort) {
+        case 'price-low':
+          products.sort((a, b) => a.price - b.price);
+          break;
+        case 'price-high':
+          products.sort((a, b) => b.price - a.price);
+          break;
+        case 'name':
+          products.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+      }
+    }
+
+    // Handle pagination
+    if (req.query.page) {
+      const totalItems = products.length;
+      const totalPages = Math.ceil(totalItems / limit);
+      const offset = (page - 1) * limit;
+      const paginatedProducts = products.slice(offset, offset + parseInt(limit));
+
+      res.json({
+        products: paginatedProducts,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages,
+          totalItems,
+          itemsPerPage: parseInt(limit),
+          hasNext: page < totalPages,
+          hasPrev: page > 1
+        }
+      });
+    } else {
+      // Return all results (backward compatibility)
+      res.json(products);
+    }
+  });
+});
+
+// Get product categories
+app.get('/api/products/categories', (req, res) => {
+  const sql = `
+    SELECT DISTINCT category 
+    FROM products 
+    WHERE category IS NOT NULL AND category != ''
+    ORDER BY category ASC
+  `;
+  
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching categories:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    const categories = rows.map(row => row.category);
+    res.json(categories);
+  });
+});
+
 
 // 404 fallback
 app.use((req, res) => {

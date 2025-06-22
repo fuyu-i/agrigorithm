@@ -91,11 +91,23 @@
                         <label for="region-filter" class="sr-only">Filter by region</label>
                         <select id="region-filter" class="input-field pr-8 appearance-none bg-white">
                             <option value="">All Regions</option>
-                            <option value="california">California</option>
-                            <option value="texas">Texas</option>
-                            <option value="florida">Florida</option>
-                            <option value="oregon">Oregon</option>
-                            <option value="washington">Washington</option>
+                            <option value="Ilocos Region">Region 1 - Ilocos Region</option>
+                            <option value="Cagayan Valley">Region 2 - Cagayan Valley</option>
+                            <option value="Central Luzon">Region 3 - Central Luzon</option>
+                            <option value="CALABARZON">Region 4A - CALABARZON</option>
+                            <option value="MIMAROPA Region">Region 4B - MIMAROPA</option>
+                            <option value="Bicol Region">Region 5 - Bicol Region</option>
+                            <option value="Western Visayas">Region 6 - Western Visayas</option>
+                            <option value="Central Visayas">Region 7 - Central Visayas</option>
+                            <option value="Eastern Visayas">Region 8 - Eastern Visayas</option>
+                            <option value="Zamboanga Peninsula">Region 9 - Zamboanga Peninsula</option>
+                            <option value="Northern Mindanao">Region 10 - Northern Mindanao</option>
+                            <option value="Davao Region">Region 11 - Davao Region</option>
+                            <option value="SOCCSKSARGEN">Region 12 - SOCCSKSARGEN</option>
+                            <option value="Caraga">Region 13 - Caraga</option>
+                            <option value="National Capital Region">NCR - National Capital Region</option>
+                            <option value="CAR">CAR - Cordillera Administrative Region</option>
+                            <option value="BARMM">BARMM - Bangsamoro Autonomous Region in Muslim Mindanao</option>
                         </select>
                         <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -112,22 +124,6 @@
                             <option value="grains">Grains</option>
                             <option value="dairy">Dairy</option>
                             <option value="herbs">Herbs</option>
-                        </select>
-                        <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </div>
-
-                    <!-- Tags Filter -->
-                    <div class="relative">
-                        <label for="tags-filter" class="sr-only">Filter by tags</label>
-                        <select id="tags-filter" class="input-field pr-8 appearance-none bg-white">
-                            <option value="">All Tags</option>
-                            <option value="organic">Organic</option>
-                            <option value="fresh">Fresh</option>
-                            <option value="local">Local</option>
-                            <option value="seasonal">Seasonal</option>
-                            <option value="premium">Premium</option>
                         </select>
                         <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -261,17 +257,6 @@
                 <button id="reset-search" class="btn-primary">Reset Search & Filters</button>
             </div>
         </div>
-
-        <!-- Load More Button -->
-        <div id="load-more-container" class="text-center">
-            <button id="load-more-btn" class="btn-outline px-8 py-3">
-                <span id="load-more-text">Load More Products</span>
-                <svg id="load-more-loading" class="hidden animate-spin -ml-1 mr-3 h-5 w-5 text-primary inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            </button>
-        </div>
     </main>
 
     <!-- Footer -->
@@ -327,21 +312,20 @@
 
     <script>
 
-        let currentProducts = [];
-        let filteredProducts = [];
         let currentPage = 1;
+        let totalPages = 1;
+        let totalItems = 0;
         let currentSearchTerm = '';
-        const itemsPerPage = 20;
+        const itemsPerPage = 12;
 
         // DOM elements
         const productsGrid = document.getElementById('products-grid');
         const loadingSkeleton = document.getElementById('loading-skeleton');
         const emptyState = document.getElementById('empty-state');
-        const loadMoreContainer = document.getElementById('load-more-container');
-        const loadMoreBtn = document.getElementById('load-more-btn');
-        const loadMoreText = document.getElementById('load-more-text');
-        const loadMoreLoading = document.getElementById('load-more-loading');
         const resultsCount = document.getElementById('results-count');
+        const pageInfo = document.getElementById('pageInfo');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
         const loadingIndicator = document.getElementById('loading-indicator');
         const appliedFilters = document.getElementById('applied-filters');
 
@@ -357,55 +341,44 @@
         const clearFiltersBtn = document.getElementById('clear-filters');
         const resetSearchBtn = document.getElementById('reset-search');
 
-        // Search functionality
-        function performSearch(searchTerm) {
-            if (!searchTerm.trim()) {
-                return [...mockProducts];
+        // API functions
+        async function fetchProducts(params = {}) {
+            try {
+                const queryParams = new URLSearchParams({
+                    page: currentPage,
+                    limit: itemsPerPage,
+                    ...params
+                });
+
+                const response = await fetch(`/api/products?${queryParams}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                showNotification('Error loading products. Please try again.', 'error');
+                return null;
             }
-
-            const term = searchTerm.toLowerCase().trim();
-            return mockProducts.filter(product => {
-                // Search in product name
-                const nameMatch = product.name.toLowerCase().includes(term);
-                
-                // Search in seller name
-                const sellerMatch = product.seller.toLowerCase().includes(term);
-                
-                // Search in tags
-                const tagMatch = product.tags.some(tag => tag.toLowerCase().includes(term));
-                
-                // Search in category
-                const categoryMatch = product.category.toLowerCase().includes(term);
-
-                return nameMatch || sellerMatch || tagMatch || categoryMatch;
-            }).map(product => ({
-                ...product,
-                relevanceScore: calculateRelevanceScore(product, term)
-            }));
         }
 
-        function calculateRelevanceScore(product, searchTerm) {
-            let score = 0;
-            const term = searchTerm.toLowerCase();
+        async function fetchCategories() {
+            try {
+                const response = await fetch('/api/products/categories');
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch categories');
+                }
 
-            // Exact name match gets highest score
-            if (product.name.toLowerCase() === term) score += 100;
-            else if (product.name.toLowerCase().startsWith(term)) score += 50;
-            else if (product.name.toLowerCase().includes(term)) score += 25;
-
-            // Seller name match
-            if (product.seller.toLowerCase().includes(term)) score += 15;
-
-            // Tag matches
-            product.tags.forEach(tag => {
-                if (tag.toLowerCase() === term) score += 20;
-                else if (tag.toLowerCase().includes(term)) score += 10;
-            });
-
-            // Category match
-            if (product.category.toLowerCase().includes(term)) score += 10;
-
-            return score;
+                const categories = await response.json();
+                return categories;
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+                return [];
+            }
         }
 
         // Debounce function for search
@@ -423,102 +396,128 @@
 
         // Debounced search function
         const debouncedSearch = debounce(() => {
-            applyFiltersAndSort();
+            currentPage = 1; // Reset to first page when searching
+            loadProducts();
         }, 300);
 
-        // Merge Sort Implementation
-        function mergeSort(arr, compareFunction) {
-            if (arr.length <= 1) return arr;
-
-            const mid = Math.floor(arr.length / 2);
-            const left = mergeSort(arr.slice(0, mid), compareFunction);
-            const right = mergeSort(arr.slice(mid), compareFunction);
-
-            return merge(left, right, compareFunction);
-        }
-
-        function merge(left, right, compareFunction) {
-            let result = [];
-            let leftIndex = 0;
-            let rightIndex = 0;
-
-            while (leftIndex < left.length && rightIndex < right.length) {
-                if (compareFunction(left[leftIndex], right[rightIndex]) <= 0) {
-                    result.push(left[leftIndex]);
-                    leftIndex++;
-                } else {
-                    result.push(right[rightIndex]);
-                    rightIndex++;
-                }
-            }
-
-            return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
-        }
-
-        // Sorting functions
-        function getSortFunction(sortType) {
-            switch (sortType) {
-                case 'price-low':
-                    return (a, b) => a.price - b.price;
-                case 'price-high':
-                    return (a, b) => b.price - a.price;
-                case 'newest':
-                    return (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded);
-                case 'relevance':
-                    return (a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0);
-                default:
-                    return (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded);
-            }
-        }
-
-        // Apply filters and sort
-        function applyFiltersAndSort() {
+        // Load products from server
+        async function loadProducts() {
             showLoadingIndicator(true);
             
             // Get current filter values
             const searchTerm = searchInput.value.trim();
             const selectedRegion = regionFilter.value;
             const selectedCategory = categoryFilter.value;
-            const selectedTag = tagsFilter.value;
             const sortType = sortSelect.value;
 
-            // Start with search results or all products
-            let products = searchTerm ? performSearch(searchTerm) : [...mockProducts];
+            // Build query parameters
+            const params = {};
+            if (searchTerm) params.search = searchTerm;
+            if (selectedRegion) params.region = selectedRegion;
+            if (selectedCategory) params.category = selectedCategory;
+            if (sortType) params.sort = sortType;
 
-            // Apply region filter
-            if (selectedRegion) {
-                products = products.filter(product => product.region === selectedRegion);
-            }
-
-            // Apply category filter
-            if (selectedCategory) {
-                products = products.filter(product => product.category === selectedCategory);
-            }
-
-            // Apply tags filter
-            if (selectedTag) {
-                products = products.filter(product => product.tags.includes(selectedTag));
-            }
-
-            // Sort products using merge sort
-            const sortFunction = getSortFunction(sortType);
-            products = mergeSort(products, sortFunction);
-
-            // Update filtered products and reset pagination
-            filteredProducts = products;
-            currentPage = 1;
-            currentSearchTerm = searchTerm;
-
-            // Update applied filters display
-            updateAppliedFilters();
-
-            // Show results
-            displayProducts();
-            updateResultsCount();
+            const data = await fetchProducts(params);
             
-            setTimeout(() => {
-                showLoadingIndicator(false);
-            }, 500);
+            if (data) {
+                // Update pagination info
+                if (data.pagination) {
+                    totalPages = data.pagination.totalPages;
+                    totalItems = data.pagination.totalItems;
+                    currentPage = data.pagination.currentPage;
+                }
+
+                // Update applied filters display
+                updateAppliedFilters();
+
+                // Display products
+                displayProducts(data.products || data);
+                updateResultsCount();
+                updatePaginationControls();
+            }
+            
+            showLoadingIndicator(false);
+        }
+
+        // Display products
+        function displayProducts(products) {
+            if (!products || products.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            hideEmptyState();
+            hideLoadingSkeleton();
+
+            productsGrid.innerHTML = products.map(product => createProductCard(product)).join('');
+        }
+
+        // Create product card HTML
+        function createProductCard(product) {
+            return `
+                <div class="bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group">
+                    <div class="relative overflow-hidden">
+                        <img 
+                            src="${product.image}" 
+                            alt="${product.name}"
+                            class="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                            onerror="this.src='/images/placeholder-product.jpg'"
+                        >
+                        <div class="absolute top-3 left-3">
+                            ${product.category ? `
+                                <span class="inline-block px-2 py-1 text-xs font-medium bg-white/90 text-text-primary rounded-full mb-1 mr-1">
+                                    ${product.category}
+                                </span>
+                            ` : ''}
+                            ${product.subcategory ? `
+                                <span class="inline-block px-2 py-1 text-xs font-medium bg-white/90 text-text-primary rounded-full mb-1 mr-1">
+                                    ${product.subcategory}
+                                </span>
+                            ` : ''}
+                        </div>
+                        <div class="absolute top-3 right-3">
+                            <button class="p-2 bg-white/90 rounded-full hover:bg-white transition-colors duration-200" aria-label="Add to favorites">
+                                <svg class="w-4 h-4 text-text-secondary hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4">
+                        <h3 class="font-semibold text-text-primary mb-2 line-clamp-2">${product.name}</h3>
+                        <p class="text-sm text-text-secondary mb-3">${product.seller}</p>
+                        
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg font-bold text-primary">₱${product.price.toFixed(2)}</span>
+                                <span class="text-sm text-text-secondary">/${product.unit}</span>
+                            </div>
+                            <span class="text-xs text-text-tertiary capitalize">${product.regionName || product.region}</span>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button 
+                                onclick="addToCart(${product.id})"
+                                class="flex-1 btn-primary text-sm py-2"
+                            >
+                                Add to Cart
+                            </button>
+                            <button 
+                                onclick="viewProduct(${product.id})"
+                                class="btn-outline text-sm py-2 px-3"
+                                aria-label="View product details"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         // Update applied filters display
@@ -526,14 +525,12 @@
             const searchTerm = searchInput.value.trim();
             const selectedRegion = regionFilter.value;
             const selectedCategory = categoryFilter.value;
-            const selectedTag = tagsFilter.value;
 
             const filters = [];
             
             if (searchTerm) filters.push({ type: 'search', value: searchTerm, label: `Search: "${searchTerm}"` });
             if (selectedRegion) filters.push({ type: 'region', value: selectedRegion, label: `Region: ${selectedRegion}` });
             if (selectedCategory) filters.push({ type: 'category', value: selectedCategory, label: `Category: ${selectedCategory}` });
-            if (selectedTag) filters.push({ type: 'tag', value: selectedTag, label: `Tag: ${selectedTag}` });
 
             if (filters.length > 0) {
                 appliedFilters.innerHTML = `
@@ -568,109 +565,47 @@
                 case 'category':
                     categoryFilter.value = '';
                     break;
-                case 'tag':
-                    tagsFilter.value = '';
-                    break;
             }
-            applyFiltersAndSort();
+            currentPage = 1;
+            loadProducts();
         }
 
-        // Display products
-        function displayProducts() {
-            const startIndex = 0;
-            const endIndex = currentPage * itemsPerPage;
-            const productsToShow = filteredProducts.slice(startIndex, endIndex);
-
-            if (productsToShow.length === 0) {
-                showEmptyState();
-                return;
+        // Update pagination controls
+        function updatePaginationControls() {
+            // Update page info
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            
+            // Update button states
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            
+            // Add/remove disabled classes for styling
+            if (currentPage <= 1) {
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
-
-            hideEmptyState();
-            hideLoadingSkeleton();
-
-            productsGrid.innerHTML = productsToShow.map(product => createProductCard(product)).join('');
-
-            // Update load more button visibility
-            updateLoadMoreButton();
-        }
-
-        // Create product card HTML
-        function createProductCard(product) {
-            return `
-                <div class="bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group">
-                    <div class="relative overflow-hidden">
-                        <img 
-                            src="${product.image}" 
-                            alt="${product.name}"
-                            class="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
-                            loading="lazy"
-                        >
-                        <div class="absolute top-3 left-3">
-                            ${product.tags.slice(0, 2).map(tag => `
-                                <span class="inline-block px-2 py-1 text-xs font-medium bg-white/90 text-text-primary rounded-full mb-1 mr-1">
-                                    ${tag}
-                                </span>
-                            `).join('')}
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <button class="p-2 bg-white/90 rounded-full hover:bg-white transition-colors duration-200" aria-label="Add to favorites">
-                                <svg class="w-4 h-4 text-text-secondary hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="p-4">
-                        <h3 class="font-semibold text-text-primary mb-2 line-clamp-2">${product.name}</h3>
-                        <p class="text-sm text-text-secondary mb-3">${product.seller}</p>
-                        
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center space-x-2">
-                                <span class="text-lg font-bold text-primary">$${product.price.toFixed(2)}</span>
-                                <span class="text-sm text-text-secondary">/${product.unit}</span>
-                            </div>
-                            <span class="text-xs text-text-tertiary capitalize">${product.region}</span>
-                        </div>
-                        
-                        <div class="flex space-x-2">
-                            <button 
-                                onclick="addToCart(${product.id})"
-                                class="flex-1 btn-primary text-sm py-2"
-                            >
-                                Add to Cart
-                            </button>
-                            <button 
-                                onclick="viewProduct(${product.id})"
-                                class="btn-outline text-sm py-2 px-3"
-                                aria-label="View product details"
-                            >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
+            
+            if (currentPage >= totalPages) {
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
         }
 
         // Product actions
         function addToCart(productId) {
-            const product = mockProducts.find(p => p.id === productId);
-            if (product) {
-                // Get current cart count
-                const cartCountElement = document.getElementById('cart-count');
-                let currentCount = parseInt(cartCountElement.textContent) || 0;
-                
-                // Update cart count
+            // Get current cart count
+            const cartCountElement = document.getElementById('cart-count');
+            let currentCount = parseInt(cartCountElement?.textContent) || 0;
+            
+            // Update cart count
+            if (cartCountElement) {
                 cartCountElement.textContent = currentCount + 1;
-                
-                // Show feedback
-                showNotification(`${product.name} added to cart!`, 'success');
             }
+            
+            // Show feedback
+            showNotification('Product added to cart!', 'success');
         }
 
         function viewProduct(productId) {
@@ -700,139 +635,186 @@
             setTimeout(() => {
                 notification.classList.add('translate-x-full');
                 setTimeout(() => {
-                    document.body.removeChild(notification);
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
                 }, 300);
             }, 3000);
         }
 
         function updateResultsCount() {
-            const totalResults = filteredProducts.length;
-            const currentlyShowing = Math.min(currentPage * itemsPerPage, totalResults);
-            
-            if (totalResults === 0) {
+            if (totalItems === 0) {
                 resultsCount.textContent = "No products found";
             } else {
-                resultsCount.textContent = `Showing ${currentlyShowing} of ${totalResults} products`;
-            }
-        }
-
-        function updateLoadMoreButton() {
-            const totalResults = filteredProducts.length;
-            const currentlyShowing = currentPage * itemsPerPage;
-            
-            if (currentlyShowing >= totalResults) {
-                loadMoreContainer.style.display = 'none';
-            } else {
-                loadMoreContainer.style.display = 'block';
-                const remaining = totalResults - currentlyShowing;
-                loadMoreText.textContent = `Load More Products (${remaining} remaining)`;
+                const startItem = ((currentPage - 1) * itemsPerPage) + 1;
+                const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+                resultsCount.textContent = `Showing ${startItem}-${endItem} of ${totalItems} products`;
             }
         }
 
         function showLoadingIndicator(show) {
-            if (show) {
-                loadingIndicator.classList.remove('hidden');
-            } else {
-                loadingIndicator.classList.add('hidden');
+            if (loadingIndicator) {
+                if (show) {
+                    loadingIndicator.classList.remove('hidden');
+                } else {
+                    loadingIndicator.classList.add('hidden');
+                }
             }
         }
 
         function showEmptyState() {
-            emptyState.classList.remove('hidden');
+            if (emptyState) {
+                emptyState.classList.remove('hidden');
+            }
             productsGrid.classList.add('hidden');
-            loadMoreContainer.style.display = 'none';
         }
 
         function hideEmptyState() {
-            emptyState.classList.add('hidden');
+            if (emptyState) {
+                emptyState.classList.add('hidden');
+            }
             productsGrid.classList.remove('hidden');
         }
 
         function showLoadingSkeleton() {
-            loadingSkeleton.classList.remove('hidden');
+            if (loadingSkeleton) {
+                loadingSkeleton.classList.remove('hidden');
+            }
             productsGrid.classList.add('hidden');
-            loadMoreContainer.style.display = 'none';
         }
 
         function hideLoadingSkeleton() {
-            loadingSkeleton.classList.add('hidden');
+            if (loadingSkeleton) {
+                loadingSkeleton.classList.add('hidden');
+            }
             productsGrid.classList.remove('hidden');
         }
 
         function toggleClearSearch() {
-            if (searchInput.value.trim()) {
-                clearSearchBtn.classList.remove('hidden');
-            } else {
-                clearSearchBtn.classList.add('hidden');
+            if (clearSearchBtn) {
+                if (searchInput.value.trim()) {
+                    clearSearchBtn.classList.remove('hidden');
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                }
             }
         }
 
         function clearAllFilters() {
             searchInput.value = '';
-            regionFilter.value = '';
-            categoryFilter.value = '';
-            tagsFilter.value = '';
-            sortSelect.value = 'newest';
+            if (regionFilter) regionFilter.value = '';
+            if (categoryFilter) categoryFilter.value = '';
+            if (sortSelect) sortSelect.value = 'newest';
             toggleClearSearch();
-            applyFiltersAndSort();
+            currentPage = 1;
+            loadProducts();
+        }
+
+        // Initialize categories dropdown
+        async function initializeCategories() {
+            if (categoryFilter) {
+                const categories = await fetchCategories();
+                
+                // Clear existing options except the first one
+                while (categoryFilter.children.length > 1) {
+                    categoryFilter.removeChild(categoryFilter.lastChild);
+                }
+                
+                // Add category options
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categoryFilter.appendChild(option);
+                });
+            }
         }
 
         // Event listeners
-        searchInput.addEventListener('input', () => {
-            toggleClearSearch();
-            debouncedSearch();
-        });
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                toggleClearSearch();
+                debouncedSearch();
+            });
+        }
 
-        clearSearchBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            toggleClearSearch();
-            applyFiltersAndSort();
-        });
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                toggleClearSearch();
+                currentPage = 1;
+                loadProducts();
+            });
+        }
 
-        regionFilter.addEventListener('change', applyFiltersAndSort);
-        categoryFilter.addEventListener('change', applyFiltersAndSort);
-        tagsFilter.addEventListener('change', applyFiltersAndSort);
-        sortSelect.addEventListener('change', applyFiltersAndSort);
+        if (regionFilter) {
+            regionFilter.addEventListener('change', () => {
+                currentPage = 1;
+                loadProducts();
+            });
+        }
 
-        clearFiltersBtn.addEventListener('click', clearAllFilters);
-        resetSearchBtn.addEventListener('click', clearAllFilters);
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', () => {
+                currentPage = 1;
+                loadProducts();
+            });
+        }
 
-        loadMoreBtn.addEventListener('click', () => {
-            // Show loading state
-            loadMoreLoading.classList.remove('hidden');
-            loadMoreText.textContent = 'Loading...';
-            loadMoreBtn.disabled = true;
+        if (sortSelect) {
+            sortSelect.addEventListener('change', () => {
+                currentPage = 1;
+                loadProducts();
+            });
+        }
 
-            // Simulate loading delay
-            setTimeout(() => {
-                currentPage++;
-                displayProducts();
-                
-                // Reset button state
-                loadMoreLoading.classList.add('hidden');
-                loadMoreBtn.disabled = false;
-            }, 1000);
-        });
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', clearAllFilters);
+        }
+
+        if (resetSearchBtn) {
+            resetSearchBtn.addEventListener('click', clearAllFilters);
+        }
+
+        // Pagination event listeners
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadProducts();
+                }
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    loadProducts();
+                }
+            });
+        }
 
         // Search on Enter key
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                applyFiltersAndSort();
-            }
-        });
+        if (searchInput) {
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    currentPage = 1;
+                    loadProducts();
+                }
+            });
+        }
 
         // Initialize the page
-        function initializePage() {
+        async function initializePage() {
             showLoadingSkeleton();
             
-            // Simulate initial loading
-            setTimeout(() => {
-                filteredProducts = [...mockProducts];
-                currentPage = 1;
-                displayProducts();
-                updateResultsCount();
-            }, 1500);
+            // Initialize categories dropdown
+            await initializeCategories();
+            
+            // Load initial products
+            await loadProducts();
         }
 
         document.addEventListener('DOMContentLoaded', initializePage);
