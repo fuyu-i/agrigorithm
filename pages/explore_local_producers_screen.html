@@ -619,6 +619,10 @@
                 prevBtn.addEventListener('click', () => {
                     if (currentPage > 1) {
                         currentPage--;
+                        producersGrid.scrollIntoView({ 
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
                         renderProducers();
                     }
                 });
@@ -629,6 +633,10 @@
                     const totalPages = Math.ceil(filteredProducers.length / itemsPerPage);
                     if (currentPage < totalPages) {
                         currentPage++;
+                        producersGrid.scrollIntoView({ 
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
                         renderProducers();
                     }
                 });
