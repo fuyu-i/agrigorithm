@@ -101,27 +101,27 @@ app.post('/api/auth/logout', (req, res) => {
 
 // Get user profile by id via query string
 app.get('/api/user', (req, res) => {
-    const userId = req.query.id;
-    if (!userId) {
-        return res.status(400).json({ error: 'User ID is required' });
+  const userId = req.query.id;
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  db.get(
+    'SELECT name, email, contact, city, province, region FROM users WHERE id = ?',
+    [userId],
+    (err, row) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      if (!row) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      res.json(row);
     }
-
-    db.get(
-        'SELECT name, email, contact, city, province, region FROM users WHERE id = ?',
-        [userId],
-        (err, row) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ error: 'Database error' });
-            }
-
-            if (!row) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-
-            res.json(row);
-        }
-    );
+  );
 });
 
 // Update user profile
@@ -180,149 +180,149 @@ app.get('/pages/:page', (req, res) => {
 // === SEARCH ROUTES ===
 // Boyer-Moore Algorithm Implementation (Server-side)
 class BoyerMoore {
-    constructor(pattern) {
-        this.pattern = pattern.toLowerCase();
-        this.badCharTable = this.buildBadCharTable();
+  constructor(pattern) {
+    this.pattern = pattern.toLowerCase();
+    this.badCharTable = this.buildBadCharTable();
+  }
+
+  buildBadCharTable() {
+    const table = {};
+    const pattern = this.pattern;
+
+    for (let i = 0; i < pattern.length - 1; i++) {
+      table[pattern[i]] = pattern.length - 1 - i;
     }
 
-    buildBadCharTable() {
-        const table = {};
-        const pattern = this.pattern;
-        
-        for (let i = 0; i < pattern.length - 1; i++) {
-            table[pattern[i]] = pattern.length - 1 - i;
-        }
-        
-        return table;
+    return table;
+  }
+
+  search(text) {
+    const textLower = text.toLowerCase();
+    const pattern = this.pattern;
+    const textLen = textLower.length;
+    const patternLen = pattern.length;
+
+    if (patternLen === 0) return [];
+
+    const matches = [];
+    let skip = 0;
+
+    while (skip <= textLen - patternLen) {
+      let j = patternLen - 1;
+
+      while (j >= 0 && pattern[j] === textLower[skip + j]) {
+        j--;
+      }
+
+      if (j < 0) {
+        matches.push(skip);
+        skip += patternLen;
+      } else {
+        const badChar = textLower[skip + j];
+        skip += Math.max(1, this.badCharTable[badChar] || patternLen);
+      }
     }
 
-    search(text) {
-        const textLower = text.toLowerCase();
-        const pattern = this.pattern;
-        const textLen = textLower.length;
-        const patternLen = pattern.length;
-        
-        if (patternLen === 0) return [];
-        
-        const matches = [];
-        let skip = 0;
-        
-        while (skip <= textLen - patternLen) {
-            let j = patternLen - 1;
-            
-            while (j >= 0 && pattern[j] === textLower[skip + j]) {
-                j--;
-            }
-            
-            if (j < 0) {
-                matches.push(skip);
-                skip += patternLen;
-            } else {
-                const badChar = textLower[skip + j];
-                skip += Math.max(1, this.badCharTable[badChar] || patternLen);
-            }
-        }
-        
-        return matches;
-    }
+    return matches;
+  }
 }
 
 
 // Search API endpoint
 app.get('/api/search', (req, res) => {
-    const query = req.query.q;
-    
-    if (!query || query.trim() === '') {
-        return res.json({ products: [], producers: [] });
-    }
+  const query = req.query.q;
 
-    // Get products from database
-    const productSql = `
+  if (!query || query.trim() === '') {
+    return res.json({ products: [], producers: [] });
+  }
+
+  // Get products from database
+  const productSql = `
         SELECT p.id, p.name, p.price, p.category, p.subcategory, p.variety, p.image_url,
                u.name as seller_name, u.shop_name, u.city, u.province, u.region
         FROM products p
         LEFT JOIN users u ON p.user_id = u.id
     `;
 
-    // Get producers (users with products)
-    const producersSql = `
+  // Get producers (users with products)
+  const producersSql = `
         SELECT u.id, u.name, u.shop_name, u.city, u.province, u.region, COUNT(p.id) as product_count
         FROM users u
         INNER JOIN products p ON u.id = p.user_id
         GROUP BY u.id, u.name, u.shop_name, u.city, u.province, u.region
     `;
 
-    Promise.all([
-        new Promise((resolve, reject) => {
-            db.all(productSql, [], (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
-            });
-        }),
-        new Promise((resolve, reject) => {
-            db.all(producersSql, [], (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
-            });
-        })
-    ])
+  Promise.all([
+    new Promise((resolve, reject) => {
+      db.all(productSql, [], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    }),
+    new Promise((resolve, reject) => {
+      db.all(producersSql, [], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows);
+      });
+    })
+  ])
     .then(([products, producers]) => {
-        const boyerMoore = new BoyerMoore(query);
-        const results = {
-            products: [],
-            producers: []
-        };
+      const boyerMoore = new BoyerMoore(query);
+      const results = {
+        products: [],
+        producers: []
+      };
 
-        // Search products using Boyer-Moore
-        products.forEach(product => {
-            const searchText = `${product.name} ${product.seller_name || ''} ${product.shop_name || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.city || ''} ${product.province || ''} ${product.region || ''}`.toLowerCase();
-            const matches = boyerMoore.search(searchText);
-            
-            if (matches.length > 0) {
-                // Prioritize exact matches in product name
-                const nameMatches = boyerMoore.search(product.name.toLowerCase());
-                product.priority = nameMatches.length > 0 ? 1 : 2;
-                results.products.push({
-                    id: product.id,
-                    name: product.name,
-                    seller: product.shop_name || product.seller_name || 'Unknown Seller',
-                    region: product.region || 'Unknown Region',
-                    category: product.category || 'Uncategorized',
-                    price: product.price,
-                    subcategory: product.subcategory,
-                    variety: product.variety,
-                    city: product.city,
-                    province: product.province,
-                    image_url: product.image_url
-                });
-            }
-        });
+      // Search products using Boyer-Moore
+      products.forEach(product => {
+        const searchText = `${product.name} ${product.seller_name || ''} ${product.shop_name || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.city || ''} ${product.province || ''} ${product.region || ''}`.toLowerCase();
+        const matches = boyerMoore.search(searchText);
 
-        // Search producers using Boyer-Moore
-        producers.forEach(producer => {
-            const searchText = `${producer.name} ${producer.shop_name || ''} ${producer.city || ''} ${producer.province || ''} ${producer.region || ''}`.toLowerCase();
-            const matches = boyerMoore.search(searchText);
-            
-            if (matches.length > 0) {
-                results.producers.push({
-                    id: producer.id,
-                    name: producer.shop_name || producer.name,
-                    region: producer.region || 'Unknown Region',
-                    productCount: producer.product_count,
-                    city: producer.city,
-                    province: producer.province
-                });
-            }
-        });
+        if (matches.length > 0) {
+          // Prioritize exact matches in product name
+          const nameMatches = boyerMoore.search(product.name.toLowerCase());
+          product.priority = nameMatches.length > 0 ? 1 : 2;
+          results.products.push({
+            id: product.id,
+            name: product.name,
+            seller: product.shop_name || product.seller_name || 'Unknown Seller',
+            region: product.region || 'Unknown Region',
+            category: product.category || 'Uncategorized',
+            price: product.price,
+            subcategory: product.subcategory,
+            variety: product.variety,
+            city: product.city,
+            province: product.province,
+            image_url: product.image_url
+          });
+        }
+      });
 
-        // Sort products by priority (exact matches first)
-        results.products.sort((a, b) => a.priority - b.priority);
+      // Search producers using Boyer-Moore
+      producers.forEach(producer => {
+        const searchText = `${producer.name} ${producer.shop_name || ''} ${producer.city || ''} ${producer.province || ''} ${producer.region || ''}`.toLowerCase();
+        const matches = boyerMoore.search(searchText);
 
-        res.json(results);
+        if (matches.length > 0) {
+          results.producers.push({
+            id: producer.id,
+            name: producer.shop_name || producer.name,
+            region: producer.region || 'Unknown Region',
+            productCount: producer.product_count,
+            city: producer.city,
+            province: producer.province
+          });
+        }
+      });
+
+      // Sort products by priority (exact matches first)
+      results.products.sort((a, b) => a.priority - b.priority);
+
+      res.json(results);
     })
     .catch(err => {
-        console.error('Database error:', err);
-        res.status(500).json({ error: 'Search failed' });
+      console.error('Database error:', err);
+      res.status(500).json({ error: 'Search failed' });
     });
 });
 
@@ -383,9 +383,10 @@ app.get('/api/products/featured', (req, res) => {
 });
 
 
-// Get all producers with product counts and categories
+// Get all producers with optional search and region filter
 app.get('/api/producers', (req, res) => {
-  const sql = `
+  const { search, region, page = 1, limit = 12 } = req.query;
+  let sql = `
     SELECT 
       u.id, 
       u.shop_name AS name, 
@@ -397,10 +398,19 @@ app.get('/api/producers', (req, res) => {
     FROM users u
     LEFT JOIN products p ON u.id = p.user_id
     WHERE u.shop_name IS NOT NULL
-    GROUP BY u.id
   `;
 
-  db.all(sql, [], (err, rows) => {
+  const params = [];
+
+  // Add region filter if provided
+  if (region && region.trim() !== '') {
+    sql += ` AND u.region = ?`;
+    params.push(region);
+  }
+
+  sql += ` GROUP BY u.id`;
+
+  db.all(sql, params, (err, rows) => {
     if (err) {
       console.error('Error fetching producers:', err);
       return res.status(500).json({ error: 'Database error' });
@@ -437,7 +447,7 @@ app.get('/api/producers', (req, res) => {
       return colors[Math.floor(Math.random() * colors.length)];
     }
 
-    const producers = rows.map(row => ({
+    let producers = rows.map(row => ({
       id: row.id,
       name: row.name,
       region: row.region,
@@ -450,7 +460,47 @@ app.get('/api/producers', (req, res) => {
       bgColor: getRandomBgColor()
     }));
 
-    res.json(producers);
+    // Apply search filter using Boyer-Moore if search query is provided
+    if (search && search.trim() !== '') {
+      const boyerMoore = new BoyerMoore(search.trim());
+
+      producers = producers.filter(producer => {
+        const searchText = `${producer.name} ${producer.regionName} ${producer.categories.join(' ')} ${producer.contact || ''} ${producer.email || ''}`;
+        const matches = boyerMoore.search(searchText);
+
+        if (matches.length > 0) {
+          const nameMatches = boyerMoore.search(producer.name);
+          producer.searchPriority = nameMatches.length > 0 ? 1 : 2;
+          return true;
+        }
+        return false;
+      });
+
+      producers.sort((a, b) => (a.searchPriority || 3) - (b.searchPriority || 3));
+    }
+
+    // Handle pagination or return all results
+    if (req.query.page) {
+      const totalItems = producers.length;
+      const totalPages = Math.ceil(totalItems / limit);
+      const offset = (page - 1) * limit;
+      const paginatedProducers = producers.slice(offset, offset + parseInt(limit));
+
+      res.json({
+        producers: paginatedProducers,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages,
+          totalItems,
+          itemsPerPage: parseInt(limit),
+          hasNext: page < totalPages,
+          hasPrev: page > 1
+        }
+      });
+    } else {
+      // Return all results (backward compatibility)
+      res.json(producers);
+    }
   });
 });
 

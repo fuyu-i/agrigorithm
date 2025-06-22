@@ -105,24 +105,23 @@
                     <div class="relative">
                         <select id="region-filter" class="input-field pr-8 appearance-none bg-white w-full">
                             <option value="">All Regions</option>
-                            <option value="Region 1 - Ilocos Region">Region 1 - Ilocos Region</option>
-                            <option value="Region 2 - Cagayan Valley">Region 2 - Cagayan Valley</option>
-                            <option value="Region 3 - Central Luzon">Region 3 - Central Luzon</option>
-                            <option value="Region 4A - CALABARZON">Region 4A - CALABARZON</option>
-                            <option value="Region 4B - MIMAROPA">Region 4B - MIMAROPA</option>
-                            <option value="Region 5 - Bicol Region">Region 5 - Bicol Region</option>
-                            <option value="Region 6 - Western Visayas">Region 6 - Western Visayas</option>
-                            <option value="Region 7 - Central Visayas">Region 7 - Central Visayas</option>
-                            <option value="Region 8 - Eastern Visayas">Region 8 - Eastern Visayas</option>
-                            <option value="Region 9 - Zamboanga Peninsula">Region 9 - Zamboanga Peninsula</option>
-                            <option value="Region 10 - Northern Mindanao">Region 10 - Northern Mindanao</option>
-                            <option value="Region 11 - Davao Region">Region 11 - Davao Region</option>
-                            <option value="Region 12 - SOCCSKSARGEN">Region 12 - SOCCSKSARGEN</option>
-                            <option value="Region 13 - Caraga">Region 13 - Caraga</option>
-                            <option value="NCR - National Capital Region">NCR - National Capital Region</option>
-                            <option value="CAR - Cordillera Administrative Region">CAR - Cordillera Administrative Region</option>
-                            <option value="BARMM - Bangsamoro Autonomous Region in Muslim Mindanao">BARMM - Bangsamoro Autonomous Region in Muslim Mindanao</option>
-
+                            <option value="Ilocos Region">Region 1 - Ilocos Region</option>
+                            <option value="Cagayan Valley">Region 2 - Cagayan Valley</option>
+                            <option value="Central Luzon">Region 3 - Central Luzon</option>
+                            <option value="CALABARZON">Region 4A - CALABARZON</option>
+                            <option value="MIMAROPA Region">Region 4B - MIMAROPA</option>
+                            <option value="Bicol Region">Region 5 - Bicol Region</option>
+                            <option value="Western Visayas">Region 6 - Western Visayas</option>
+                            <option value="Central Visayas">Region 7 - Central Visayas</option>
+                            <option value="Eastern Visayas">Region 8 - Eastern Visayas</option>
+                            <option value="Zamboanga Peninsula">Region 9 - Zamboanga Peninsula</option>
+                            <option value="Northern Mindanao">Region 10 - Northern Mindanao</option>
+                            <option value="Davao Region">Region 11 - Davao Region</option>
+                            <option value="SOCCSKSARGEN">Region 12 - SOCCSKSARGEN</option>
+                            <option value="Caraga">Region 13 - Caraga</option>
+                            <option value="National Capital Region">NCR - National Capital Region</option>
+                            <option value="CAR">CAR - Cordillera Administrative Region</option>
+                            <option value="BARMM">BARMM - Bangsamoro Autonomous Region in Muslim Mindanao</option>
                         </select>
                         <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-tertiary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -310,6 +309,8 @@
 
         let currentProducers = [];
         let filteredProducers = [];
+        let totalPages = 1;
+        let totalItems = 0;
 
         // DOM elements
         const producersGrid = document.getElementById('producers-grid');
@@ -335,22 +336,56 @@
         let currentPage = 1;
         const itemsPerPage = 12;
 
-        // Fetch producers from backend
-        async function fetchProducers() {
+        // Fetch producers from backend with search and filters
+        async function fetchProducers(page = 1, search = '', region = '') {
             try {
-                const response = await fetch('/api/producers');
+                showLoadingIndicator();
+                
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: itemsPerPage.toString()
+                });
+                
+                if (search && search.trim()) {
+                    params.append('search', search.trim());
+                }
+                
+                if (region && region.trim()) {
+                    params.append('region', region.trim());
+                }
+                
+                const response = await fetch(`/api/producers?${params}`);
                 if (!response.ok) throw new Error('Failed to fetch producers');
+                
                 const data = await response.json();
-                currentProducers = data;
-                applyFilters();
+                
+                // Handle both paginated and non-paginated responses
+                if (data.producers) {
+                    // Paginated response
+                    currentProducers = data.producers;
+                    totalPages = data.pagination.totalPages;
+                    totalItems = data.pagination.totalItems;
+                    currentPage = data.pagination.currentPage;
+                } else {
+                    // Non-paginated response (backward compatibility)
+                    currentProducers = data;
+                    totalItems = data.length;
+                    totalPages = Math.ceil(totalItems / itemsPerPage);
+                }
+                
+                filteredProducers = currentProducers;
+                
                 setTimeout(() => {
                     if (loadingSkeleton) {
                         loadingSkeleton.classList.add('hidden');
                     }
                     renderProducers();
-                }, 1000);
+                    hideLoadingIndicator();
+                }, 300);
+                
             } catch (error) {
                 console.error('Error fetching producers:', error);
+                hideLoadingIndicator();
                 showErrorState();
             }
         }
@@ -376,38 +411,16 @@
         // Debounced search function
         const debouncedSearch = debounce(() => {
             applyFilters();
-        }, 300);
+        }, 500);
 
-        // Apply filters
+        // Apply filters - now makes API call
         function applyFilters() {
-            showLoadingIndicator();
-            currentPage = 1;
+            const searchTerm = searchInput ? searchInput.value.trim() : '';
+            const region = regionFilter ? regionFilter.value : '';
             
-            setTimeout(() => {
-                let filtered = [...currentProducers];
-                const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
-                const region = regionFilter ? regionFilter.value : '';
-                
-                // Apply region filter
-                if (region) {
-                    filtered = filtered.filter(producer => producer.regionName === region);
-                }
-                
-                // Apply search filter
-                if (searchTerm) {
-                    filtered = filtered.filter(producer => 
-                        producer.name.toLowerCase().includes(searchTerm) ||
-                        producer.regionName.toLowerCase().includes(searchTerm) ||
-                        producer.categories.some(cat => cat.toLowerCase().includes(searchTerm)) ||
-                        producer.bio.toLowerCase().includes(searchTerm)
-                    );
-                }
-                
-                filteredProducers = filtered;
-                updateAppliedFilters();
-                renderProducers();
-                hideLoadingIndicator();
-            }, 300);
+            currentPage = 1; // Reset to first page
+            fetchProducers(currentPage, searchTerm, region);
+            updateAppliedFilters();
         }
 
         // Update applied filters display
@@ -501,35 +514,41 @@
             }
         }
 
+        // Navigate to specific page
+        function goToPage(page) {
+            const searchTerm = searchInput ? searchInput.value.trim() : '';
+            const region = regionFilter ? regionFilter.value : '';
+            
+            fetchProducers(page, searchTerm, region);
+            
+            // Scroll to top of producers grid
+            if (producersGrid) {
+                producersGrid.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
         // Render producers
         function renderProducers() {
-            const totalPages = Math.ceil(filteredProducers.length / itemsPerPage);
-            const start = (currentPage - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const paginatedProducers = filteredProducers.slice(start, end);
-
-            // Hide pagination controls when no producers OR only 1 page
-            if (filteredProducers.length === 0 || totalPages <= 1) {
+            // Handle empty state
+            if (filteredProducers.length === 0) {
+                producersGrid.classList.add('hidden');
+                if (emptyState) emptyState.classList.remove('hidden');
+                if (errorState) errorState.classList.add('hidden');
                 if (paginationControls) paginationControls.classList.add('hidden');
-                
-                // show the empty state if no producers
-                if (filteredProducers.length === 0) {
-                    producersGrid.classList.add('hidden');
-                    if (emptyState) emptyState.classList.remove('hidden');
-                    if (errorState) errorState.classList.add('hidden');
-                    if (resultsCount) resultsCount.textContent = '';
-                    return;
-                }
-            } else {
-                // Show pagination controls when there are multiple pages
-                if (paginationControls) paginationControls.classList.remove('hidden');
+                if (resultsCount) resultsCount.textContent = '';
+                return;
             }
             
+            // Show producers grid
             producersGrid.classList.remove('hidden');
             if (emptyState) emptyState.classList.add('hidden');
             if (errorState) errorState.classList.add('hidden');
             
-            producersGrid.innerHTML = paginatedProducers.map(producer => `
+            // Render producer cards
+            producersGrid.innerHTML = filteredProducers.map(producer => `
                 <div class="bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:scale-105">
                     <a href="seller_page_screen.html?producer=${producer.id}" class="block">
                         <div class="h-32 bg-gradient-to-br ${producer.bgColor} relative overflow-hidden">
@@ -570,15 +589,25 @@
             
             // Update results count
             if (resultsCount) {
-                resultsCount.textContent = `Showing ${filteredProducers.length} producer${filteredProducers.length !== 1 ? 's' : ''}`;
+                resultsCount.textContent = `Showing ${filteredProducers.length} of ${totalItems} producer${totalItems !== 1 ? 's' : ''}`;
             }
             
+            // Update pagination controls
+            updatePaginationControls();
+        }
+
+        // Update pagination controls
+        function updatePaginationControls() {
             const pageInfo = document.getElementById('pageInfo');
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
-            const controls = document.getElementById('pagination-controls');
             
-            if (controls) controls.classList.remove('hidden');
+            if (totalPages <= 1) {
+                if (paginationControls) paginationControls.classList.add('hidden');
+                return;
+            }
+            
+            if (paginationControls) paginationControls.classList.remove('hidden');
             if (pageInfo) pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
             if (prevBtn) prevBtn.disabled = currentPage === 1;
             if (nextBtn) nextBtn.disabled = currentPage === totalPages;
@@ -618,26 +647,15 @@
             if (prevBtn) {
                 prevBtn.addEventListener('click', () => {
                     if (currentPage > 1) {
-                        currentPage--;
-                        producersGrid.scrollIntoView({ 
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                        renderProducers();
+                        goToPage(currentPage - 1);
                     }
                 });
             }
             
             if (nextBtn) {
                 nextBtn.addEventListener('click', () => {
-                    const totalPages = Math.ceil(filteredProducers.length / itemsPerPage);
                     if (currentPage < totalPages) {
-                        currentPage++;
-                        producersGrid.scrollIntoView({ 
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                        renderProducers();
+                        goToPage(currentPage + 1);
                     }
                 });
             }
