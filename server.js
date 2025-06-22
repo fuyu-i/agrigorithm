@@ -383,6 +383,79 @@ app.get('/api/products/featured', (req, res) => {
 });
 
 
+// Get all producers with product counts and categories
+app.get('/api/producers', (req, res) => {
+  const sql = `
+    SELECT 
+      u.id, 
+      u.shop_name AS name, 
+      u.region, 
+      u.contact, 
+      u.email, 
+      COUNT(p.id) AS productCount,
+      GROUP_CONCAT(DISTINCT p.category) AS categories
+    FROM users u
+    LEFT JOIN products p ON u.id = p.user_id
+    WHERE u.shop_name IS NOT NULL
+    GROUP BY u.id
+  `;
+
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching producers:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    const regionMap = {
+      'Ilocos Region': 'Region 1 - Ilocos Region',
+      'Cagayan Valley': 'Region 2 - Cagayan Valley',
+      'Central Luzon': 'Region 3 - Central Luzon',
+      'CALABARZON': 'Region 4A - CALABARZON',
+      'MIMAROPA Region': 'Region 4B - MIMAROPA',
+      'Bicol Region': 'Region 5 - Bicol Region',
+      'Western Visayas': 'Region 6 - Western Visayas',
+      'Central Visayas': 'Region 7 - Central Visayas',
+      'Eastern Visayas': 'Region 8 - Eastern Visayas',
+      'Zamboanga Peninsula': 'Region 9 - Zamboanga Peninsula',
+      'Northern Mindanao': 'Region 10 - Northern Mindanao',
+      'Davao Region': 'Region 11 - Davao Region',
+      'SOCCSKSARGEN': 'Region 12 - SOCCSKSARGEN',
+      'Caraga': 'Region 13 - Caraga',
+      'CAR': 'CAR - Cordillera Administrative Region',
+      'National Capital Region': 'NCR - National Capital Region',
+      'BARMM': 'BARMM - Bangsamoro Autonomous Region in Muslim Mindanao'
+    };
+
+    function getRandomBgColor() {
+      const colors = [
+        'from-primary-light to-primary',
+        'from-success to-primary',
+        'from-warning to-success',
+        'from-info to-primary',
+        'from-primary to-info'
+      ];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    const producers = rows.map(row => ({
+      id: row.id,
+      name: row.name,
+      region: row.region,
+      regionName: regionMap[row.region] || 'Unknown Region',
+      productCount: row.productCount || 0,
+      categories: row.categories ? row.categories.split(',') : [],
+      contact: row.contact,
+      email: row.email,
+      avatar: (row.name || '').split(' ').map(w => w[0]).join('').toUpperCase(),
+      bgColor: getRandomBgColor()
+    }));
+
+    res.json(producers);
+  });
+});
+
+
+
 // 404 fallback
 app.use((req, res) => {
   res.status(404).send('Not Found');
