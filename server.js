@@ -57,13 +57,13 @@ app.post('/api/auth/signup', async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.run(stmt, [name, email, hashedPassword, contact, city, province, region], function(err) {
+    db.run(stmt, [name, email, hashedPassword, contact, city, province, region], function (err) {
       if (err) {
         console.error('DB error:', err);
         return res.status(409).json({ error: 'Email already exists or DB error' });
       }
       req.session.userId = this.lastID;
-      res.json({ message: 'User created successfully', userId: this.lastID});
+      res.json({ message: 'User created successfully', userId: this.lastID });
     });
   } catch (err) {
     console.error('Server error:', err);
@@ -84,7 +84,8 @@ app.post('/api/auth/login', (req, res) => {
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
     req.session.userId = user.id;
-    res.json({ message: 'Logged in successfully',
+    res.json({
+      message: 'Logged in successfully',
       userEmail: user.email,
       userId: user.id,
     });
@@ -138,7 +139,7 @@ app.put('/api/user/update', (req, res) => {
     WHERE id = ?
   `;
 
-  db.run(sql, [name, email, contact, city, province, region, userId], function(err) {
+  db.run(sql, [name, email, contact, city, province, region, userId], function (err) {
     if (err) {
       console.error('DB error:', err);
       return res.status(500).json({ error: 'Failed to update profile' });
@@ -508,7 +509,7 @@ app.get('/api/producers', (req, res) => {
 // Get all products with optional search, region, category filters and sorting
 app.get('/api/products', (req, res) => {
   const { search, region, category, sort = 'newest', page = 1, limit = 12 } = req.query;
-  
+
   let sql = `
     SELECT 
       p.id,
@@ -604,7 +605,7 @@ app.get('/api/products', (req, res) => {
         if (matches.length > 0) {
           // Calculate relevance score based on where matches are found
           let relevanceScore = 0;
-          
+
           // Check for matches in product name (highest priority)
           const nameMatches = boyerMoore.search(product.name.toLowerCase());
           if (nameMatches.length > 0) {
@@ -732,13 +733,13 @@ app.get('/api/products/categories', (req, res) => {
     WHERE category IS NOT NULL AND category != ''
     ORDER BY category ASC
   `;
-  
+
   db.all(sql, [], (err, rows) => {
     if (err) {
       console.error('Error fetching categories:', err);
       return res.status(500).json({ error: 'Database error' });
     }
-    
+
     const categories = rows.map(row => row.category);
     res.json(categories);
   });
