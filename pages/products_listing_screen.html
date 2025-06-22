@@ -781,6 +781,10 @@
             prevBtn.addEventListener('click', () => {
                 if (currentPage > 1) {
                     currentPage--;
+                    regionFilter.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                     loadProducts();
                 }
             });
@@ -790,6 +794,10 @@
             nextBtn.addEventListener('click', () => {
                 if (currentPage < totalPages) {
                     currentPage++;
+                    regionFilter.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                     loadProducts();
                 }
             });
