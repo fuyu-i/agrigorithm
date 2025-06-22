@@ -186,6 +186,33 @@
             <!-- Product cards will be dynamically inserted here -->
         </div>
 
+        <!-- Pagination Controls -->
+        <div id="pagination-controls" class="flex flex-col sm:flex-row items-center justify-between bg-white rounded-lg border border-gray-200 px-6 py-4 shadow-sm">
+            <div class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg min-w-[120px] justify-center">
+                <span id="results-count">Showing 12 producers</span>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button id="prevBtn" class="flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Previous
+                </button>
+                
+                <div class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg min-w-[120px] justify-center">
+                    <span id="pageInfo">Page 1 of 5</span>
+                </div>
+                
+                <button id="nextBtn" class="flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
+                    Next
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
         <!-- Loading Skeleton -->
         <div id="loading-skeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
             <!-- Skeleton cards -->
@@ -299,129 +326,6 @@
     </footer>
 
     <script>
-        // Mock product data
-        const mockProducts = [
-            {
-                id: 1,
-                name: "Fresh Organic Tomatoes",
-                price: 4.99,
-                unit: "kg",
-                image: "https://images.unsplash.com/photo-1560493676-04071c5f467b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
-                seller: "Green Fields Farm",
-                region: "california",
-                category: "vegetables",
-                tags: ["organic", "fresh", "local"],
-                dateAdded: new Date('2025-01-15')
-            },
-            {
-                id: 2,
-                name: "Sweet Bell Peppers",
-                price: 3.49,
-                unit: "lb",
-                image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
-                seller: "Sunny Valley Farm",
-                region: "california",
-                category: "vegetables",
-                tags: ["fresh", "colorful", "organic"],
-                dateAdded: new Date('2025-01-14')
-            },
-            {
-                id: 3,
-                name: "Fresh Carrots",
-                price: 1.99,
-                unit: "lb",
-                image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
-                seller: "Orange Grove Farm",
-                region: "florida",
-                category: "vegetables",
-                tags: ["organic", "sweet", "local"],
-                dateAdded: new Date('2025-01-13')
-            },
-            {
-                id: 4,
-                name: "Crispy Lettuce",
-                price: 2.99,
-                unit: "head",
-                image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
-                seller: "Green Leaf Gardens",
-                region: "oregon",
-                category: "vegetables",
-                tags: ["fresh", "crispy", "organic"],
-                dateAdded: new Date('2025-01-12')
-            },
-            {
-                id: 5,
-                name: "Red Apples",
-                price: 3.99,
-                unit: "lb",
-                image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
-                seller: "Apple Valley Orchard",
-                region: "washington",
-                category: "fruits",
-                tags: ["sweet", "crispy", "premium"],
-                dateAdded: new Date('2025-01-11')
-            },
-            {
-                id: 6,
-                name: "Fresh Strawberries",
-                price: 5.99,
-                unit: "lb",
-                image: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
-                seller: "Berry Fresh Farm",
-                region: "california",
-                category: "fruits",
-                tags: ["sweet", "seasonal", "premium"],
-                dateAdded: new Date('2025-01-10')
-            },
-            {
-                id: 7,
-                name: "Organic Spinach",
-                price: 2.49,
-                unit: "bunch",
-                image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
-                seller: "Leafy Greens Co",
-                region: "texas",
-                category: "vegetables",
-                tags: ["organic", "fresh", "healthy"],
-                dateAdded: new Date('2025-01-09')
-            },
-            {
-                id: 8,
-                name: "Yellow Corn",
-                price: 1.49,
-                unit: "ear",
-                image: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
-                seller: "Corn Field Farm",
-                region: "texas",
-                category: "grains",
-                tags: ["sweet", "fresh", "local"],
-                dateAdded: new Date('2025-01-08')
-            },
-            {
-                id: 9,
-                name: "Juicy Oranges",
-                price: 2.99,
-                unit: "lb",
-                image: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
-                seller: "Citrus Grove Farm",
-                region: "florida",
-                category: "fruits",
-                tags: ["juicy", "vitamin-c", "fresh"],
-                dateAdded: new Date('2025-01-07')
-            },
-            {
-                id: 10,
-                name: "Fresh Basil",
-                price: 1.99,
-                unit: "bunch",
-                image: "https://images.unsplash.com/photo-1618375569909-3c8616cf32ec?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3",
-                seller: "Herb Haven",
-                region: "california",
-                category: "herbs",
-                tags: ["aromatic", "fresh", "organic"],
-                dateAdded: new Date('2025-01-06')
-            }
-        ];
 
         let currentProducts = [];
         let filteredProducts = [];
