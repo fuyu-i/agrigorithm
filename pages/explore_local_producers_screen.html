@@ -589,7 +589,9 @@
             
             // Update results count
             if (resultsCount) {
-                resultsCount.textContent = `Showing ${filteredProducers.length} of ${totalItems} producer${totalItems !== 1 ? 's' : ''}`;
+                const startItem = ((currentPage - 1) * itemsPerPage) + 1;
+                const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+                resultsCount.textContent = `Showing ${startItem}-${endItem} of ${totalItems} producer${totalItems !== 1 ? 's' : ''}`;
             }
             
             // Update pagination controls
