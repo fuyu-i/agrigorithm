@@ -276,6 +276,7 @@
                                         }
                                         <div class="flex-1 min-w-0">
                                             <p class="font-medium text-text-primary truncate">${product.name}</p>
+                                            ${product.description ? `<p class="text-sm text-text-secondary truncate mb-1">${product.description}</p>` : ''}
                                             <div class="text-sm text-text-secondary">
                                                 <span>${product.seller}</span>
                                                 ${product.region ? ` • ${product.region}` : ''}
