@@ -30,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname)));
+app.use('/images', express.static(path.join(__dirname, 'product_images')));
 
 
 // Logging middleware
