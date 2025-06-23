@@ -237,6 +237,36 @@ app.get('/api/search', (req, res) => {
     return res.json({ products: [], producers: [] });
   }
 
+  const regionMap = {
+    'Ilocos Region': 'Region 1',
+    'Cagayan Valley': 'Region 2',
+    'Central Luzon': 'Region 3',
+    'CALABARZON': 'Region 4A',
+    'MIMAROPA Region': 'Region 4B',
+    'Bicol Region': 'Region 5',
+    'Western Visayas': 'Region 6',
+    'Central Visayas': 'Region 7',
+    'Eastern Visayas': 'Region 8',
+    'Zamboanga Peninsula': 'Region 9',
+    'Northern Mindanao': 'Region 10',
+    'Davao Region': 'Region 11',
+    'SOCCSKSARGEN': 'Region 12',
+    'Caraga': 'Region 13',
+    'CAR': 'Cordillera Administrative Region',
+    'National Capital Region': 'NCR',
+    'BARMM': 'Bangsamoro Autonomous Region in Muslim Mindanao'
+  };
+
+  function getSearchableRegionText(region) {
+    if (!region) return '';
+    
+    const mappedValue = regionMap[region];
+    if (mappedValue) {
+      return `${region} ${mappedValue}`;
+    }
+    return region;
+  }
+
   // Get products from database
   const productSql = `
         SELECT
@@ -288,20 +318,24 @@ app.get('/api/search', (req, res) => {
 
       // Search products using Boyer-Moore
       products.forEach(product => {
-        const searchText = `${product.name} ${product.description || ''} ${product.seller_name || ''} ${product.shop_name || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.city || ''} ${product.province || ''} ${product.region || ''}`.toLowerCase();
+        const regionText = getSearchableRegionText(product.region);
+        const searchText = `${product.name} ${product.description || ''} ${product.seller_name || ''} ${product.shop_name || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.city || ''} ${product.province || ''} ${regionText}`.toLowerCase();
         const matches = boyerMoore.search(searchText);
 
         if (matches.length > 0) {
           // Priority System
           const nameMatches = boyerMoore.search(product.name.toLowerCase());
           const descriptionMatches = boyerMoore.search((product.description || '').toLowerCase());
+          const regionMatches = boyerMoore.search(regionText.toLowerCase());
 
-          // Priority: 1 = exact match in name, 2 = match in description, 3 = match elsewhere
-          let priority = 3;
+          // Priority: 1 = exact match in name, 2 = match in description, 3 = match in region, 4 = match elsewhere
+          let priority = 4;
           if (nameMatches.length > 0) {
             priority = 1;
           } else if (descriptionMatches.length > 0) {
             priority = 2;
+          } else if (regionMatches.length > 0) {
+            priority = 3;
           }
 
           results.products.push({
@@ -324,7 +358,8 @@ app.get('/api/search', (req, res) => {
 
       // Search producers using Boyer-Moore
       producers.forEach(producer => {
-        const searchText = `${producer.name} ${producer.shop_name || ''} ${producer.city || ''} ${producer.province || ''} ${producer.region || ''}`.toLowerCase();
+        const regionText = getSearchableRegionText(producer.region);
+        const searchText = `${producer.name} ${producer.shop_name || ''} ${producer.city || ''} ${producer.province || ''} ${regionText}`.toLowerCase();
         const matches = boyerMoore.search(searchText);
 
         if (matches.length > 0) {
@@ -339,7 +374,7 @@ app.get('/api/search', (req, res) => {
         }
       });
 
-      // Sort products by priority (exact matches first, then description matches, then others)
+      // Sort products by priority (exact matches first, then description matches, then region matches, then others)
       results.products.sort((a, b) => a.priority - b.priority);
 
       res.json(results);
