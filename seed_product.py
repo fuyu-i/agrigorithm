@@ -1,7 +1,11 @@
 import sqlite3
 import random
 import datetime
+import os
+import glob
 from typing import List, Tuple
+
+IMAGES_BASE_DIR = "product_images"
 
 AGRICULTURAL_PRODUCTS = {
     "Fruits": {
@@ -194,6 +198,35 @@ PRODUCT_SPECIFIC_DATA = {
     # Add more specific data as needed - this is a sample
 }
 
+# Function to find product images based on category, and subcategory
+def find_product_image(product_name: str, variety: str, category: str, subcategory: str) -> str:
+    fallback_image = "https://cdn.britannica.com/17/196817-050-6A15DAC3/vegetables.jpg"
+    category_path = os.path.join(IMAGES_BASE_DIR, category, subcategory)
+    
+    if not os.path.exists(category_path):
+        print(f"[WARNING] Category path does not exist: {category_path}")
+        return fallback_image
+    
+    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+    all_images = []
+    
+    for ext in image_extensions:
+        all_images.extend(glob.glob(os.path.join(category_path, f"*{ext}")))
+        all_images.extend(glob.glob(os.path.join(category_path, f"*{ext.upper()}")))
+    
+    if all_images:
+        random_image = random.choice(all_images)
+        
+        relative_path = os.path.relpath(random_image, IMAGES_BASE_DIR)
+        server_path = f"/images/{relative_path}"
+        
+        print(f"[INFO] Using image: {server_path} for {variety} {product_name}")
+        return server_path
+    
+    print(f"[WARNING] No images found in {category_path}")
+    return fallback_image
+
+
 def get_product_context(product_name: str, variety: str, category: str, subcategory: str) -> dict:
     base_data = PRODUCT_SPECIFIC_DATA.get(product_name, {})
     
@@ -296,9 +329,9 @@ def generate_agricultural_products(user_ids: List[int], product_count: int = 200
         
         final_price = round(random.uniform(*product_info["price_range"]), 2)
         
-        description = generate_realistic_description(product_name, variety, category)
+        description = generate_realistic_description(product_name, variety, category, subcategory)
         
-        image_url = f"https://cdn.britannica.com/17/196817-050-6A15DAC3/vegetables.jpg"  # Placeholder image URL
+        image_url = find_product_image(product_name, variety, category, subcategory)
         
         days_ago = random.randint(0, 30)
         created_at = (datetime.datetime.now() - datetime.timedelta(days=days_ago)).isoformat()
