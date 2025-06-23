@@ -730,22 +730,45 @@ app.get('/api/products', (req, res) => {
       });
 
       products = filteredProducts;
-
-      // Sort by relevance when searching (unless another sort is specified)
-      if (sort === 'relevance' || sort === 'newest') {
-        products.sort((a, b) => {
-          // Sort by priority (name matches first)
-          if (a.priority !== b.priority) {
-            return a.priority - b.priority;
-          }
-          // Sort by relevance score
-          return b.relevanceScore - a.relevanceScore;
-        });
-      }
     }
 
-    // Apply other sorting options
-    if (!search) {
+    // Apply sorting based on sort parameter
+    if (search && search.trim() !== '') {
+      switch (sort) {
+        case 'relevance':
+          products.sort((a, b) => {
+            // Sort by priority (name matches first)
+            if (a.priority !== b.priority) {
+              return a.priority - b.priority;
+            }
+            // Sort by relevance score
+            return b.relevanceScore - a.relevanceScore;
+          });
+          break;
+        case 'newest':
+          products.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+          break;
+        case 'price-low':
+          products.sort((a, b) => a.price - b.price);
+          break;
+        case 'price-high':
+          products.sort((a, b) => b.price - a.price);
+          break;
+        case 'name':
+          products.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        default:
+          // Default to relevance for search results
+          products.sort((a, b) => {
+            if (a.priority !== b.priority) {
+              return a.priority - b.priority;
+            }
+            return b.relevanceScore - a.relevanceScore;
+          });
+          break;
+      }
+    } else {
+      // When not searching, apply normal sorting
       switch (sort) {
         case 'price-low':
           products.sort((a, b) => a.price - b.price);
@@ -759,18 +782,6 @@ app.get('/api/products', (req, res) => {
         case 'newest':
         default:
           products.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
-          break;
-      }
-    } else if (search && sort !== 'newest' && sort !== 'relevance') {
-      switch (sort) {
-        case 'price-low':
-          products.sort((a, b) => a.price - b.price);
-          break;
-        case 'price-high':
-          products.sort((a, b) => b.price - a.price);
-          break;
-        case 'name':
-          products.sort((a, b) => a.name.localeCompare(b.name));
           break;
       }
     }
