@@ -77,7 +77,7 @@ def generate_n_locations(number):
 
     return final_locations
 
-conn = sqlite3.connect("users.db")
+conn = sqlite3.connect("agrigorithm.db")
 cur = conn.cursor()
 
 cur.execute('''

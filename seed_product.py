@@ -355,7 +355,7 @@ def generate_agricultural_products(user_ids: List[int], product_count: int = 200
 def seed_agricultural_database():
     product_count = int(input("Enter the number of agricultural products to seed: "))
 
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect("agrigorithm.db")
     cur = conn.cursor()
     
     cur.execute('''

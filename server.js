@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Initialize SQLite database
-const db = new sqlite3.Database('./users.db', (err) => {
+const db = new sqlite3.Database('./agrigorithm.db', (err) => {
   if (err) console.error('Database error:', err);
   else console.log('✅ Connected to SQLite DB');
 });
