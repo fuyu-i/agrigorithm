@@ -362,19 +362,35 @@ app.get('/api/producers/random', (req, res) => {
     LIMIT 4
   `;
 
+  function getRandomBgColor() {
+    const colors = [
+      'from-primary-light to-primary',
+      'from-success to-primary',
+      'from-warning to-success',
+      'from-info to-primary',
+      'from-primary to-info'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
   db.all(sql, [], (err, rows) => {
     if (err) {
       console.error('Error fetching producers:', err);
       return res.status(500).json({ error: 'Database error' });
     }
-    res.json(rows.map(producer => ({
-      id: producer.id,
-      name: producer.shop_name || producer.name,
-      city: producer.city,
-      province: producer.province,
-      region: producer.region,
-      productCount: producer.product_count
-    })));
+    res.json(rows.map(producer => {
+      const producerName = producer.shop_name || producer.name;
+      return {
+        id: producer.id,
+        name: producerName,
+        city: producer.city,
+        province: producer.province,
+        region: producer.region,
+        productCount: producer.product_count,
+        avatar: producerName.split(' ').map(w => w[0]).join('').toUpperCase(),
+        bgColor: getRandomBgColor()
+      };
+    }));
   });
 });
 
