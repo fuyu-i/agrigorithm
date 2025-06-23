@@ -454,6 +454,23 @@
 
         // Create product card HTML
         function createProductCard(product) {
+            // Format date
+            const formatDate = (dateString) => {
+                if (!dateString) return 'Unknown';
+                try {
+                    const date = new Date(dateString);
+                    if (isNaN(date.getTime())) return 'Invalid date';
+                    
+                    return date.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                } catch (error) {
+                    return 'Invalid date';
+                }
+            };
+
             return `
                 <div class="bg-surface-raised rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all duration-300 group">
                     <div class="relative overflow-hidden">
@@ -487,7 +504,8 @@
                     
                     <div class="p-4">
                         <h3 class="font-semibold text-text-primary mb-2 line-clamp-2">${product.name}</h3>
-                        <p class="text-sm text-text-secondary mb-3">${product.seller}</p>
+                        <p class="text-sm text-text-secondary mb-2">${product.seller}</p>
+                        <p class="text-xs text-text-tertiary mb-3">Added ${formatDate(product.dateAdded)}</p>
                         
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center space-x-2">
