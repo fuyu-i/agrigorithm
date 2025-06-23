@@ -239,8 +239,20 @@ app.get('/api/search', (req, res) => {
 
   // Get products from database
   const productSql = `
-        SELECT p.id, p.name, p.price, p.category, p.subcategory, p.variety, p.image_url,
-               u.name as seller_name, u.shop_name, u.city, u.province, u.region
+        SELECT
+          p.id,
+          p.name,
+          p.description,
+          p.price,
+          p.category,
+          p.subcategory,
+          p.variety,
+          p.image_url,
+          u.name as seller_name,
+          u.shop_name,
+          u.city,
+          u.province,
+          u.region
         FROM products p
         LEFT JOIN users u ON p.user_id = u.id
     `;
@@ -276,16 +288,26 @@ app.get('/api/search', (req, res) => {
 
       // Search products using Boyer-Moore
       products.forEach(product => {
-        const searchText = `${product.name} ${product.seller_name || ''} ${product.shop_name || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.city || ''} ${product.province || ''} ${product.region || ''}`.toLowerCase();
+        const searchText = `${product.name} ${product.description || ''} ${product.seller_name || ''} ${product.shop_name || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.city || ''} ${product.province || ''} ${product.region || ''}`.toLowerCase();
         const matches = boyerMoore.search(searchText);
 
         if (matches.length > 0) {
-          // Prioritize exact matches in product name
+          // Priority System
           const nameMatches = boyerMoore.search(product.name.toLowerCase());
-          product.priority = nameMatches.length > 0 ? 1 : 2;
+          const descriptionMatches = boyerMoore.search((product.description || '').toLowerCase());
+
+          // Priority: 1 = exact match in name, 2 = match in description, 3 = match elsewhere
+          let priority = 3;
+          if (nameMatches.length > 0) {
+            priority = 1;
+          } else if (descriptionMatches.length > 0) {
+            priority = 2;
+          }
+
           results.products.push({
             id: product.id,
             name: product.name,
+            description: product.description,
             seller: product.shop_name || product.seller_name || 'Unknown Seller',
             region: product.region || 'Unknown Region',
             category: product.category || 'Uncategorized',
@@ -294,7 +316,8 @@ app.get('/api/search', (req, res) => {
             variety: product.variety,
             city: product.city,
             province: product.province,
-            image_url: product.image_url
+            image_url: product.image_url,
+            priority: priority
           });
         }
       });
@@ -316,7 +339,7 @@ app.get('/api/search', (req, res) => {
         }
       });
 
-      // Sort products by priority (exact matches first)
+      // Sort products by priority (exact matches first, then description matches, then others)
       results.products.sort((a, b) => a.priority - b.priority);
 
       res.json(results);
