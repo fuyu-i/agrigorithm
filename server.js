@@ -581,6 +581,64 @@ app.get('/api/producers', (req, res) => {
 });
 
 
+// Merge Sort implementation
+function mergeSort(arr, start, end, compareFunction) {
+  if (start < end) {
+    const mid = Math.floor((start + end) / 2);
+    mergeSort(arr, start, mid, compareFunction);
+    mergeSort(arr, mid + 1, end, compareFunction);
+    merge(arr, start, mid, end, compareFunction);
+  }
+}
+
+function merge(arr, start, mid, end, compareFunction) {
+  // Create temporary arrays for left and right subarrays
+  const leftSize = mid - start + 1;
+  const rightSize = end - mid;
+  
+  const leftArray = [];
+  const rightArray = [];
+  
+  // Copy data to temporary arrays
+  for (let i = 0; i < leftSize; i++) {
+    leftArray[i] = arr[start + i];
+  }
+  for (let i = 0; i < rightSize; i++) {
+    rightArray[i] = arr[mid + 1 + i];
+  }
+  
+  // Merge the temporary arrays back into arr[start..end]
+  let i = 0; // Initial index of left subarray
+  let j = 0; // Initial index of right subarray
+  let k = start; // Initial index of merged subarray
+  
+  while (i < leftSize && j < rightSize) {
+    if (compareFunction(leftArray[i], rightArray[j]) <= 0) {
+      arr[k] = leftArray[i];
+      i++;
+    } else {
+      arr[k] = rightArray[j];
+      j++;
+    }
+    k++;
+  }
+  
+  // Copy the remaining elements of leftArray[], if any
+  while (i < leftSize) {
+    arr[k] = leftArray[i];
+    i++;
+    k++;
+  }
+  
+  // Copy the remaining elements of rightArray[], if any
+  while (j < rightSize) {
+    arr[k] = rightArray[j];
+    j++;
+    k++;
+  }
+}
+
+
 // Get all products with optional search, region, category filters and sorting
 app.get('/api/products', (req, res) => {
   const { search, region, category, sort = 'newest', page = 1, limit = 12 } = req.query;
@@ -732,11 +790,11 @@ app.get('/api/products', (req, res) => {
       products = filteredProducts;
     }
 
-    // Apply sorting based on sort parameter
+    // Apply sorting using merge sort based on sort parameter
     if (search && search.trim() !== '') {
       switch (sort) {
         case 'relevance':
-          products.sort((a, b) => {
+          mergeSort(products, 0, products.length - 1, (a, b) => {
             // Sort by priority (name matches first)
             if (a.priority !== b.priority) {
               return a.priority - b.priority;
@@ -746,42 +804,37 @@ app.get('/api/products', (req, res) => {
           });
           break;
         case 'newest':
-          products.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+          mergeSort(products, 0, products.length - 1, (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
           break;
         case 'price-low':
-          products.sort((a, b) => a.price - b.price);
+          mergeSort(products, 0, products.length - 1, (a, b) => a.price - b.price);
           break;
         case 'price-high':
-          products.sort((a, b) => b.price - a.price);
+          mergeSort(products, 0, products.length - 1, (a, b) => b.price - a.price);
           break;
         case 'name':
-          products.sort((a, b) => a.name.localeCompare(b.name));
+          mergeSort(products, 0, products.length - 1, (a, b) => a.name.localeCompare(b.name));
           break;
         default:
-          // Default to relevance for search results
-          products.sort((a, b) => {
-            if (a.priority !== b.priority) {
-              return a.priority - b.priority;
-            }
-            return b.relevanceScore - a.relevanceScore;
-          });
+          // Default to newest for search results
+          mergeSort(products, 0, products.length - 1, (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
           break;
       }
     } else {
       // When not searching, apply normal sorting
       switch (sort) {
         case 'price-low':
-          products.sort((a, b) => a.price - b.price);
+          mergeSort(products, 0, products.length - 1, (a, b) => a.price - b.price);
           break;
         case 'price-high':
-          products.sort((a, b) => b.price - a.price);
+          mergeSort(products, 0, products.length - 1, (a, b) => b.price - a.price);
           break;
         case 'name':
-          products.sort((a, b) => a.name.localeCompare(b.name));
+          mergeSort(products, 0, products.length - 1, (a, b) => a.name.localeCompare(b.name));
           break;
         case 'newest':
         default:
-          products.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+          mergeSort(products, 0, products.length - 1, (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
           break;
       }
     }
