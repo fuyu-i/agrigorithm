@@ -434,16 +434,6 @@
         </div>
     </footer>
     <script>
-        // Mock user data
-        const mockUser = {
-            name: "John Smith",
-            email: "farmer@example.com",
-            contact: "+1 (555) 123-4567",
-            city: "Sacramento",
-            province: "California",
-            region: "West Coast"
-        };
-
         // Check if user is logged in
         let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
@@ -507,10 +497,7 @@
 
 
                     localStorage.setItem('isLoggedIn', 'true');
-                    // localStorage.setItem('userData', JSON.stringify(user));
-                    // localStorage.setItem('userEmail', user.email);
                     localStorage.setItem('userId', user.userId);
-                    // localStorage.setItem('userEmail', user.userEmail);
                     showProfile();
                     showToast('Login successful! Welcome back.');
                 })
@@ -547,7 +534,6 @@
                 .then(data => {
                     localStorage.setItem('isLoggedIn', 'true');
                     localStorage.setItem('userId', data.userId);
-                    // localStorage.setItem('userEmail', data.userEmail); // use data.userEmail returned from backend
                     showToast('Account created! Welcome.');
                     setTimeout(() => {
                         window.location.href = 'login_profile_screen.html';
