@@ -626,12 +626,29 @@
 
             // Logout functionality
             const logoutBtn = document.getElementById('logout-btn');
-            logoutBtn.addEventListener('click', function() {
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('userData');
-                isLoggedIn = false;
-                showLogin();
-                showToast('Logged out successfully!');
+            logoutBtn.addEventListener('click', async function() {
+                try {
+                    // Call the server logout endpoint
+                    const response = await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    
+                    if (response.ok) {
+                        localStorage.removeItem('isLoggedIn');
+                        localStorage.removeItem('userData');
+                        isLoggedIn = false;
+                        showLogin();
+                        showToast('Logged out successfully!');
+                        document.getElementById('login-email').value = '';
+                        document.getElementById('login-password').value = '';
+                    } else {
+                        showToast('Logout failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    showToast('Logout failed. Please try again.');
+                }
             });
 
             // Show register form (placeholder)
