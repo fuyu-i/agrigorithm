@@ -40,21 +40,6 @@ cd agrigorithm
 npm install
 ```
 
-## ⚙️ Configuration
-
-Before running the app, you'll need to update the API configuration:
-
-1. **Locate your config.js file**
-
-2. **Update the API_BASE_URL** to point to your local server:
-
-```javascript
-// const API_BASE_URL = 'https://agrigorithm.loca.lt';
-const API_BASE_URL = 'http://localhost:3000';
-```
-
-*Make sure to comment out the original URL and uncomment the localhost URL.*
-
 ## 🚀 Running the Server
 
 Start the Node.js backend server:
@@ -81,21 +66,4 @@ Open your browser and go to:
 http://localhost:3000
 ```
 
----
-# 📝 To-Do List
 
-## Fix
-- Include description when searching
-
-## ✅ Features To Implement
-
-- [ ] **Seller Products Page**
-  - List all products uploaded by the current user
-  - Option to edit the shop name
-
-- [ ] **Add New Product Form**
-  - Allow logged-in users to list new products
-
-- [ ] **Others**
-
----
