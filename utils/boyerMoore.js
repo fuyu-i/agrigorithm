@@ -38,7 +38,7 @@ class BoyerMoore {
 
       if (j < 0) {
         matches.push(skip);
-        skip += patternLen;
+        return matches; // Exit after first match found
       } else {
         const badChar = textLower[skip + j];
         skip += Math.max(1, this.badCharTable[badChar] || patternLen);

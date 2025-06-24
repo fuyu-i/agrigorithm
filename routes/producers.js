@@ -90,12 +90,16 @@ router.get('/', (req, res) => {
       const boyerMoore = new BoyerMoore(search.trim());
 
       producers = producers.filter(producer => {
-        const searchText = `${producer.name} ${producer.regionName} ${producer.categories.join(' ')} ${producer.contact || ''} ${producer.email || ''}`;
-        const matches = boyerMoore.search(searchText);
+        // Check name first (highest priority)
+        if (boyerMoore.search(producer.name).length > 0) {
+          producer.searchPriority = 1;
+          return true;
+        }
 
-        if (matches.length > 0) {
-          const nameMatches = boyerMoore.search(producer.name);
-          producer.searchPriority = nameMatches.length > 0 ? 1 : 2;
+        // Check other fields if name doesn't match
+        const otherFields = `${producer.regionName} ${producer.categories.join(' ')} ${producer.contact || ''} ${producer.email || ''}`;
+        if (boyerMoore.search(otherFields).length > 0) {
+          producer.searchPriority = 2;
           return true;
         }
         return false;

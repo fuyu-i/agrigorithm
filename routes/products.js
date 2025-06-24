@@ -108,58 +108,60 @@ router.get('/', (req, res) => {
       const filteredProducts = [];
 
       products.forEach(product => {
-        // Create search text combining all searchable fields
-        const searchText = `${product.name} ${product.description || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.seller || ''}`.toLowerCase();
-        const matches = boyerMoore.search(searchText);
+        let relevanceScore = 0;
+        let hasMatch = false;
+        let priority = 2;
 
-        if (matches.length > 0) {
-          // Calculate relevance score based on where matches are found
-          let relevanceScore = 0;
-
-          // Check for matches in product name (highest priority)
-          const nameMatches = boyerMoore.search(product.name.toLowerCase());
-          if (nameMatches.length > 0) {
-            relevanceScore += 100;
-            // Bonus for exact match
-            if (product.name.toLowerCase() === search.trim().toLowerCase()) {
-              relevanceScore += 50;
-            }
-            // Bonus for match at beginning
-            if (nameMatches.includes(0)) {
-              relevanceScore += 25;
-            }
+        // Check for matches in product name (highest priority)
+        const nameMatches = boyerMoore.search(product.name.toLowerCase());
+        if (nameMatches.length > 0) {
+          relevanceScore += 100;
+          hasMatch = true;
+          priority = 1;
+          
+          // Bonus for exact match
+          if (product.name.toLowerCase() === search.trim().toLowerCase()) {
+            relevanceScore += 50;
           }
-
-          // Check for matches in seller name
-          const sellerMatches = boyerMoore.search((product.seller || '').toLowerCase());
-          if (sellerMatches.length > 0) {
-            relevanceScore += 15;
+          // Bonus for match at beginning
+          if (nameMatches[0] === 0) {
+            relevanceScore += 25;
           }
+        }
 
-          // Check for matches in category fields
-          const categoryMatches = boyerMoore.search((product.category || '').toLowerCase());
-          if (categoryMatches.length > 0) {
-            relevanceScore += 10;
-          }
+        // Check for matches in seller name
+        if (product.seller && boyerMoore.search(product.seller.toLowerCase()).length > 0) {
+          relevanceScore += 15;
+          hasMatch = true;
+        }
 
-          const subcategoryMatches = boyerMoore.search((product.subcategory || '').toLowerCase());
-          if (subcategoryMatches.length > 0) {
-            relevanceScore += 8;
-          }
+        // Check for matches in category fields
+        if (product.category && boyerMoore.search(product.category.toLowerCase()).length > 0) {
+          relevanceScore += 10;
+          hasMatch = true;
+        }
 
-          const varietyMatches = boyerMoore.search((product.variety || '').toLowerCase());
-          if (varietyMatches.length > 0) {
-            relevanceScore += 8;
-          }
+        // Check for matches in subcategory
+        if (product.subcategory && boyerMoore.search(product.subcategory.toLowerCase()).length > 0) {
+          relevanceScore += 8;
+          hasMatch = true;
+        }
 
-          // Check for matches in description
-          const descriptionMatches = boyerMoore.search((product.description || '').toLowerCase());
-          if (descriptionMatches.length > 0) {
-            relevanceScore += 5;
-          }
+        // Check for matches in variety
+        if (product.variety && boyerMoore.search(product.variety.toLowerCase()).length > 0) {
+          relevanceScore += 8;
+          hasMatch = true;
+        }
 
+        // Check for matches in description
+        if (product.description && boyerMoore.search(product.description.toLowerCase()).length > 0) {
+          relevanceScore += 5;
+          hasMatch = true;
+        }
+
+        if (hasMatch) {
           product.relevanceScore = relevanceScore;
-          product.priority = nameMatches.length > 0 ? 1 : 2;
+          product.priority = priority;
           filteredProducts.push(product);
         }
       });

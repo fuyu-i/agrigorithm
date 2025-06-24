@@ -66,26 +66,38 @@ router.get('/', (req, res) => {
 
       // Search products using Boyer-Moore
       products.forEach(product => {
-        const regionText = getSearchableRegionText(product.region);
-        const searchText = `${product.name} ${product.description || ''} ${product.seller_name || ''} ${product.shop_name || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.city || ''} ${product.province || ''} ${regionText}`.toLowerCase();
-        const matches = boyerMoore.search(searchText);
+        let priority = 4;
+        let hasMatch = false;
 
-        if (matches.length > 0) {
-          // Priority System
-          const nameMatches = boyerMoore.search(product.name.toLowerCase());
-          const descriptionMatches = boyerMoore.search((product.description || '').toLowerCase());
-          const regionMatches = boyerMoore.search(regionText.toLowerCase());
-
-          // Priority: 1 = exact match in name, 2 = match in description, 3 = match in region, 4 = match elsewhere
-          let priority = 4;
-          if (nameMatches.length > 0) {
-            priority = 1;
-          } else if (descriptionMatches.length > 0) {
-            priority = 2;
-          } else if (regionMatches.length > 0) {
+        // Check priority fields first (highest to lowest priority)
+        
+        // Priority 1: exact match in name
+        if (boyerMoore.search(product.name.toLowerCase()).length > 0) {
+          priority = 1;
+          hasMatch = true;
+        }
+        // Priority 2: match in description
+        else if (product.description && boyerMoore.search(product.description.toLowerCase()).length > 0) {
+          priority = 2;
+          hasMatch = true;
+        }
+        // Priority 3: match in region
+        else {
+          const regionText = getSearchableRegionText(product.region);
+          if (boyerMoore.search(regionText.toLowerCase()).length > 0) {
             priority = 3;
+            hasMatch = true;
           }
+          // Priority 4: match elsewhere (only if no higher priority match found)
+          else {
+            const otherFields = `${product.seller_name || ''} ${product.shop_name || ''} ${product.category || ''} ${product.subcategory || ''} ${product.variety || ''} ${product.city || ''} ${product.province || ''}`.toLowerCase();
+            if (boyerMoore.search(otherFields).length > 0) {
+              hasMatch = true;
+            }
+          }
+        }
 
+        if (hasMatch) {
           results.products.push({
             id: product.id,
             name: product.name,
