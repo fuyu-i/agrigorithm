@@ -5,6 +5,7 @@ class BoyerMoore {
   constructor(pattern) {
     this.pattern = pattern.toLowerCase();
     this.badCharTable = this.buildBadCharTable();
+    this.goodSuffixTable = this.buildGoodSuffixTable();
   }
 
   buildBadCharTable() {
@@ -16,6 +17,39 @@ class BoyerMoore {
     }
 
     return table;
+  }
+
+  buildGoodSuffixTable() {
+    const pattern = this.pattern;
+    const m = pattern.length;
+    const goodSuffixTable = new Array(m + 1).fill(0);
+    const border = new Array(m + 1).fill(0);
+
+    let i = m, j = m + 1;
+    border[i] = j;
+
+    while (i > 0) {
+      while (j <= m && pattern[i - 1] !== pattern[j - 1]) {
+        if (goodSuffixTable[j] === 0) {
+          goodSuffixTable[j] = j - i;
+        }
+        j = border[j];
+      }
+      i--;
+      j--;
+      border[i] = j;
+    }
+
+    for (let i = 0; i <= m; i++) {
+      if (goodSuffixTable[i] === 0) {
+        goodSuffixTable[i] = j;
+      }
+      if (i === j) {
+        j = border[j];
+      }
+    }
+
+    return goodSuffixTable.slice(1);
   }
 
   search(text) {
@@ -41,7 +75,11 @@ class BoyerMoore {
         return matches; // Exit after first match found
       } else {
         const badChar = textLower[skip + j];
-        skip += Math.max(1, this.badCharTable[badChar] || patternLen);
+        const badCharShift = this.badCharTable[badChar] !== undefined
+          ? this.badCharTable[badChar] - (patternLen - 1 - j)
+          : patternLen;
+        const goodSuffixShift = this.goodSuffixTable[j];
+        skip += Math.max(1, badCharShift, goodSuffixShift);
       }
     }
 
