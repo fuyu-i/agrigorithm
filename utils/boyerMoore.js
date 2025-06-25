@@ -12,7 +12,7 @@ class BoyerMoore {
     const table = {};
     const pattern = this.pattern;
 
-    for (let i = 0; i < pattern.length - 1; i++) {
+    for (let i = 0; i < pattern.length; i++) {
       table[pattern[i]] = pattern.length - 1 - i;
     }
 
