@@ -170,52 +170,45 @@ router.get('/', (req, res) => {
     }
 
     // Apply sorting using merge sort based on sort parameter
-    if (search && search.trim() !== '') {
+    if (products.length > 0) {
+      let compareFn;
+      
+      // Determine which comparison function to use
       switch (sort) {
         case 'relevance':
-          mergeSort(products, 0, products.length - 1, (a, b) => {
-            // Sort by priority (name matches first)
-            if (a.priority !== b.priority) {
-              return a.priority - b.priority;
-            }
-            // Sort by relevance score
-            return b.relevanceScore - a.relevanceScore;
-          });
+          // Only available when searching
+          if (search && search.trim() !== '') {
+            compareFn = (a, b) => {
+              // Sort by priority (name matches first)
+              if (a.priority !== b.priority) {
+                return a.priority - b.priority;
+              }
+              // Sort by relevance score
+              return b.relevanceScore - a.relevanceScore;
+            };
+          } else {
+            // Fallback to newest if relevance requested without search
+            compareFn = (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded);
+          }
           break;
-        case 'newest':
-          mergeSort(products, 0, products.length - 1, (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
-          break;
+          
         case 'price-low':
-          mergeSort(products, 0, products.length - 1, (a, b) => a.price - b.price);
+          compareFn = (a, b) => a.price - b.price;
           break;
         case 'price-high':
-          mergeSort(products, 0, products.length - 1, (a, b) => b.price - a.price);
+          compareFn = (a, b) => b.price - a.price;
           break;
         case 'name':
-          mergeSort(products, 0, products.length - 1, (a, b) => a.name.localeCompare(b.name));
-          break;
-        default:
-          // Default to newest for search results
-          mergeSort(products, 0, products.length - 1, (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
-          break;
-      }
-    } else {
-      // When not searching, apply normal sorting
-      switch (sort) {
-        case 'price-low':
-          mergeSort(products, 0, products.length - 1, (a, b) => a.price - b.price);
-          break;
-        case 'price-high':
-          mergeSort(products, 0, products.length - 1, (a, b) => b.price - a.price);
-          break;
-        case 'name':
-          mergeSort(products, 0, products.length - 1, (a, b) => a.name.localeCompare(b.name));
+          compareFn = (a, b) => a.name.localeCompare(b.name);
           break;
         case 'newest':
         default:
-          mergeSort(products, 0, products.length - 1, (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+          compareFn = (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded);
           break;
       }
+      
+      // Apply the sorting
+      mergeSort(products, 0, products.length - 1, compareFn);
     }
 
     // Handle pagination
